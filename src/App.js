@@ -12,7 +12,7 @@ import {
   PointElement,
 } from "chart.js";
 import AnnotationPlugin from "chartjs-plugin-annotation";
-
+import * as signalR from "@microsoft/signalr";
 ChartJS.register(
   LineElement,
   CategoryScale,
@@ -44,6 +44,44 @@ const App = () => {
     };
 
     fetchTeams();
+
+    // SignalR connection
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:7021/gamestatsHub", {
+        withCredentials: true,
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    if (
+      connection &&
+      connection.state === signalR.HubConnectionState.Connected
+    ) {
+      return;
+    }
+    connection.on("ReceiveGameStats", (gameStats) => {
+      console.log(gameStats);
+    });
+
+    const start = async () => {
+      connection
+        .start()
+        .then(() => {
+          console.log("SignalR connection started.");
+        })
+        .catch((err) =>
+          console.error("Failed to start SignalR connection:", err)
+        );
+    };
+
+    connection.onclose(async (err) => {
+      console.error("Connection closed:", err);
+    });
+    start();
+
+    return () => {
+      connection.stop().then(() => console.log("SignalR connection stopped."));
+    };
   }, []);
 
   const fetchTeamStats = async (teamId, setStats, setSelectedTeamId) => {
