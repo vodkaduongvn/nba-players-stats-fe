@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import AnnotationPlugin from "chartjs-plugin-annotation";
 import * as signalR from "@microsoft/signalr";
+
 ChartJS.register(
   LineElement,
   CategoryScale,
@@ -32,6 +33,7 @@ const App = () => {
   const [selectedLeftTeamId, setSelectedLeftTeamId] = useState(null);
   const [selectedRightTeamId, setSelectedRightTeamId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [gameStats, setGameStats] = useState([]); // State to store gameStats
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -53,14 +55,9 @@ const App = () => {
       .withAutomaticReconnect()
       .build();
 
-    if (
-      connection &&
-      connection.state === signalR.HubConnectionState.Connected
-    ) {
-      return;
-    }
     connection.on("ReceiveGameStats", (gameStats) => {
       console.log(gameStats);
+      setGameStats((prevStats) => [...prevStats, gameStats]); // Update gameStats state
     });
 
     const start = async () => {
@@ -231,7 +228,7 @@ const App = () => {
                   team.id !== selectedRightTeamId &&
                   handleTeamClick(team.id)
                 }
-                style={{ textAlign: "center" }}
+                style={{ width: "200px", textAlign: "center" }}
               >
                 <img
                   src={team.logo}
@@ -239,7 +236,26 @@ const App = () => {
                   className="w-12 h-12 mb-2 mx-auto"
                   style={{ width: "50px", height: "50px" }}
                 />
-                {team.name}
+                {gameStats.length > 0 &&
+                  gameStats[0].teamInfo
+                    .filter((info) => info.abbr === team.abbr)
+                    .map((info, index) => (
+                      <div key={index} className="game-stats">
+                        <p>
+                          <strong>Assist:</strong> {info.assistLeader}
+                        </p>
+                        <p>
+                          <strong>Point:</strong> {info.pointLeader}
+                        </p>
+                        <p>
+                          <strong>Reb:</strong> {info.reboundLeader}
+                        </p>
+                        <p>
+                          <i>Date:</i>{" "}
+                          {new Date(gameStats[0].gameDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    ))}
               </li>
             ))}
           </ul>

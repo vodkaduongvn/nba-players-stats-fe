@@ -40,3 +40,9 @@ code {
   background-color: rgba(128, 128, 128, 0.5); /* Gray with 50% opacity */
   z-index: 50;
 }
+
+.game-stats{
+  text-align: left;
+  font-size: 15px;
+  display: contents;
+}
