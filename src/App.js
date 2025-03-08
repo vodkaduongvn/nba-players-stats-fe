@@ -34,11 +34,12 @@ const App = () => {
   const [selectedRightTeamId, setSelectedRightTeamId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [gameStats, setGameStats] = useState([]); // State to store gameStats
+  const baseUrl = "http://localhost:5087"; //https://localhost:7021
 
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get("https://localhost:7021/teams"); // Replace with actual API URL
+        const response = await axios.get(`${baseUrl}/teams`); // Replace with actual API URL
         setTeams(response.data.slice(0, 30));
       } catch (error) {
         console.error("Error fetching teams:", error);
@@ -49,15 +50,15 @@ const App = () => {
 
     // SignalR connection
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7021/gamestatsHub", {
+      .withUrl(`${baseUrl}/gamestatsHub`, {
         withCredentials: true,
       })
       .withAutomaticReconnect()
       .build();
 
-    connection.on("ReceiveGameStats", (gameStats) => {
-      console.log(gameStats);
-      setGameStats((prevStats) => [...prevStats, gameStats]); // Update gameStats state
+    connection.on("ReceiveGameStats", (newGameStats) => {
+      console.log(newGameStats);
+      setGameStats([newGameStats]);
     });
 
     const start = async () => {
@@ -85,7 +86,7 @@ const App = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://localhost:7021/Players/players-stats/${teamId}`
+        `${baseUrl}/Players/players-stats/${teamId}`
       ); // Replace with actual API URL
       setStats(response.data);
       setSelectedTeamId(teamId);
@@ -236,7 +237,8 @@ const App = () => {
                   className="w-12 h-12 mb-2 mx-auto"
                   style={{ width: "50px", height: "50px" }}
                 />
-                {gameStats.length > 0 &&
+                {gameStats[0] !== undefined &&
+                  gameStats[0].teamInfo &&
                   gameStats[0].teamInfo
                     .filter((info) => info.abbr === team.abbr)
                     .map((info, index) => (
