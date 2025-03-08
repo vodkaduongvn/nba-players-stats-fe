@@ -75,6 +75,7 @@ const App = () => {
     connection.onclose(async (err) => {
       console.error("Connection closed:", err);
     });
+
     start();
 
     return () => {
@@ -243,17 +244,18 @@ const App = () => {
                     .filter((info) => info.abbr === team.abbr)
                     .map((info, index) => (
                       <div key={index} className="game-stats">
-                        <p>
-                          <strong>Assist:</strong> {info.assistLeader}
+                        <p className="game-stats-title">Assist:</p>
+                        <p className="game-stats-content">
+                          {info.assistLeader}
                         </p>
-                        <p>
-                          <strong>Point:</strong> {info.pointLeader}
+                        <p className="game-stats-title">Point:</p>
+                        <p className="game-stats-content">{info.pointLeader}</p>
+                        <p className="game-stats-title">Reb:</p>
+                        <p className="game-stats-content">
+                          {info.reboundLeader}
                         </p>
-                        <p>
-                          <strong>Reb:</strong> {info.reboundLeader}
-                        </p>
-                        <p>
-                          <i>Date:</i>{" "}
+                        <p className="game-stats-title">Date:</p>
+                        <p className="game-stats-content">
                           {new Date(gameStats[0].gameDate).toLocaleDateString()}
                         </p>
                       </div>

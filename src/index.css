@@ -40,9 +40,28 @@ code {
   background-color: rgba(128, 128, 128, 0.5); /* Gray with 50% opacity */
   z-index: 50;
 }
-
+/* 
 .game-stats{
   text-align: left;
   font-size: 15px;
   display: contents;
+} */
+.game-stats {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  font-size: 15px;
+}
+
+.game-stats p {
+  margin: 0;
+}
+
+.game-stats-title {
+  font-weight: bold;
+  text-align: right;
+}
+
+.game-stats-content{
+  text-align: left;
+  padding-left: 10px;
 }
