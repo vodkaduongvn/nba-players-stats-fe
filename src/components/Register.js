@@ -1,0 +1,64 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/axiosConfig.js"; // Import file cấu hình Axios
+
+const Register = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/auth/register", {
+        email,
+        password,
+      });
+      if (response.status === 201) {
+        alert("Đăng ký thành công!");
+        navigate("/"); // Điều hướng về trang đăng nhập
+      }
+    } catch (error) {
+      alert("Đăng ký thất bại! Vui lòng thử lại.");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-200">
+      <form
+        onSubmit={handleRegister}
+        className="bg-white p-8 rounded shadow-md w-96"
+      >
+        <h2 className="text-xl font-bold mb-4">Đăng ký</h2>
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full mb-4 p-2 border"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Mật khẩu"
+          className="w-full mb-4 p-2 border"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Đăng ký
+        </button>
+        <p className="mt-4">
+          Đã có tài khoản?{" "}
+          <a href="/" className="text-blue-600">
+            Đăng nhập
+          </a>
+        </p>
+      </form>
+    </div>
+  );
+};
+
+export default Register;
