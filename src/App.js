@@ -13,12 +13,21 @@ import { ToastContainer } from "react-toastify"; // Import ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Import CSS của react-toastify
 
 // Component kiểm tra xác thực
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, redirectTo }) => {
   const { isAuthenticated } = useContext(AuthContext);
   console.log("isAuth:", isAuthenticated);
-  if (!isAuthenticated) {
+
+  if (
+    isAuthenticated &&
+    (redirectTo === "/login" || redirectTo === "/register")
+  ) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (!isAuthenticated && redirectTo === "/dashboard") {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 
@@ -27,12 +36,26 @@ const App = () => {
     <AuthContextProvider>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route
+            path="/login"
+            element={
+              <ProtectedRoute redirectTo="/login">
+                <Login />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <ProtectedRoute redirectTo="/register">
+                <Register />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute redirectTo="/dashboard">
                 <Dashboard />
               </ProtectedRoute>
             }
