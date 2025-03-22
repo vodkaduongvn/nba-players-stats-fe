@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = "http://localhost:5087"; // Thay bằng URL API của bạn
+const baseUrl = "http://localhost:5087";
 
 // Tạo một instance của Axios
 const api = axios.create({
@@ -10,12 +10,11 @@ const api = axios.create({
   },
 });
 
-// Request Interceptor: Gắn token vào header Authorization
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
+    const token = localStorage.getItem("accessToken");
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // Gắn token vào header
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -24,14 +23,13 @@ api.interceptors.request.use(
   }
 );
 
-// Response Interceptor: Xử lý lỗi và tự động refresh token nếu cần
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   async (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("accessToken"); // Xóa token khi hết hạn
+      localStorage.removeItem("accessToken");
     }
     return Promise.reject(error);
   }

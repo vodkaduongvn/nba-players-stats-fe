@@ -9,10 +9,9 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import { AuthContextProvider, AuthContext } from "./services/AuthContext";
-import { ToastContainer } from "react-toastify"; // Import ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import CSS của react-toastify
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// Component kiểm tra xác thực
 const ProtectedRoute = ({ children, redirectTo }) => {
   const { isAuthenticated } = useContext(AuthContext);
 

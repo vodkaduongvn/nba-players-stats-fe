@@ -6,9 +6,8 @@ export const AuthContextProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("accessToken")
   );
-  const [user, setUser] = useState(localStorage.getItem("userName") || ""); // Lưu tên người dùng
+  const [user, setUser] = useState(localStorage.getItem("userName") || "");
 
-  // Hàm xử lý đăng nhập
   const login = (token, email) => {
     localStorage.setItem("accessToken", token);
     localStorage.setItem("userName", email);
@@ -16,7 +15,6 @@ export const AuthContextProvider = ({ children }) => {
     setUser(email);
   };
 
-  // Hàm xử lý đăng xuất
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userName");
