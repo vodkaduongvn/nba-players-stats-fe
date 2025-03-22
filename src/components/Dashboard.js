@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 //import axios from "axios";
 import api from "../services/axiosConfig.js";
 import { Line } from "react-chartjs-2";
@@ -14,6 +15,7 @@ import {
 } from "chart.js";
 import AnnotationPlugin from "chartjs-plugin-annotation";
 import * as signalR from "@microsoft/signalr";
+import { AuthContext } from "../services/AuthContext";
 
 ChartJS.register(
   LineElement,
@@ -27,6 +29,8 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
+  const { isAuthenticated, user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
   const [leftTeamStats, setLeftTeamStats] = useState(null);
   const [rightTeamStats, setRightTeamStats] = useState(null);
@@ -38,6 +42,11 @@ const Dashboard = () => {
   const baseUrl = "http://localhost:5087";
 
   useEffect(() => {
+    console.log(isAuthenticated);
+    if (!isAuthenticated) {
+      navigate("/login"); // Chuyển hướng về login nếu chưa đăng nhập
+    }
+
     const fetchTeams = async () => {
       try {
         const response = await api.get(`${baseUrl}/teams`);
@@ -81,7 +90,12 @@ const Dashboard = () => {
     return () => {
       connection.stop().then(() => console.log("SignalR connection stopped."));
     };
-  }, []);
+  }, [isAuthenticated, navigate]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const fetchTeamStats = async (teamId, setStats, setSelectedTeamId) => {
     setLoading(true);
@@ -214,8 +228,19 @@ const Dashboard = () => {
 
   return (
     <>
-      <header className="container-fluid bg-gray-800 mx-auto p-4">
-        <h1 className="text-white text-2xl font-bold text-center">NBA Teams</h1>
+      <header className="container-fluid bg-gray-800 p-4 flex justify-between items-center">
+        <h1 className="text-white text-2xl font-bold">NBA Teams</h1>
+        <div className="flex items-center space-x-4">
+          <span className="text-white font-medium">
+            Welcome, {user || "User"}!
+          </span>
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </header>
       <hr style={{ border: "1px solid #c0c0c0" }}></hr>
       <div className="container mx-auto p-4" style={{ display: "flex" }}>

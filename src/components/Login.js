@@ -1,27 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../services/AuthContext"; // Import AuthContext
 import api from "../services/axiosConfig.js"; // Import file cấu hình Axios
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useContext(AuthContext); // Lấy hàm login từ AuthContext
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post("/login", {
-        email,
-        password,
-      });
+      const response = await api.post("/login", { email, password });
 
       if (response.status === 200) {
-        console.log(response);
-        localStorage.setItem("accessToken", response.data.accessToken); // Lưu token
-        navigate("/dashboard"); // Điều hướng về dashboard
+        const { accessToken } = response.data; // Giả sử API trả về userName
+        localStorage.setItem("accessToken", accessToken);
+        login(accessToken, email); // Gọi hàm login với token và tên người dùng
+        navigate("/dashboard");
       }
     } catch (error) {
-      alert("Đăng nhập thất bại!");
+      alert("Đăng nhập thất bại! Vui lòng kiểm tra email hoặc mật khẩu.");
     }
   };
 

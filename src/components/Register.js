@@ -1,27 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../services/AuthContext";
 import api from "../services/axiosConfig.js"; // Import file cấu hình Axios
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post("/auth/register", {
+      const response = await api.post("/register", {
         email,
         password,
       });
-      if (response.status === 201) {
-        alert("Đăng ký thành công!");
-        navigate("/"); // Điều hướng về trang đăng nhập
+      console.log("res:", response);
+      console.log("status", response.status);
+      if (response.status === 200) {
+        // alert("Đăng ký thành công!");
+        // const accessToken = response.data.accessToken;
+        // localStorage.setItem("accessToken", accessToken); // Lưu token
+        // login(accessToken, email);
+        console.log("status", response.status);
+        navigate("/dashboard"); // Điều hướng về trang đăng nhập
       }
     } catch (error) {
-      alert("Đăng ký thất bại! Vui lòng thử lại.");
+      //alert("Đăng ký thất bại! Vui lòng thử lại.");
+      handleValidationErrors(error.response.data);
     }
   };
+  function handleValidationErrors(errorData) {
+    const { title, errors } = errorData;
+
+    // Duyệt qua các lỗi validation và hiển thị chúng
+    if (errors) {
+      const messages = Object.values(errors).flatMap((messages) => messages);
+
+      // Hiển thị các lỗi mà không kèm trường
+      toast.error(messages.join("\n"));
+    } else {
+      toast.error(title || "Validation error occurred.");
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-200">
