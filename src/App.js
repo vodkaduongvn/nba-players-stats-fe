@@ -15,7 +15,6 @@ import "react-toastify/dist/ReactToastify.css"; // Import CSS của react-toasti
 // Component kiểm tra xác thực
 const ProtectedRoute = ({ children, redirectTo }) => {
   const { isAuthenticated } = useContext(AuthContext);
-  console.log("isAuth:", isAuthenticated);
 
   if (
     isAuthenticated &&

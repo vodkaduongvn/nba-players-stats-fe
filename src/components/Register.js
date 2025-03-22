@@ -7,7 +7,7 @@ import api from "../services/axiosConfig.js"; // Import file cấu hình Axios
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useContext(AuthContext);
+  //const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -20,15 +20,13 @@ const Register = () => {
       console.log("res:", response);
       console.log("status", response.status);
       if (response.status === 200) {
-        // alert("Đăng ký thành công!");
         // const accessToken = response.data.accessToken;
         // localStorage.setItem("accessToken", accessToken); // Lưu token
-        // login(accessToken, email);
+        //login(accessToken, email);
         console.log("status", response.status);
         navigate("/dashboard"); // Điều hướng về trang đăng nhập
       }
     } catch (error) {
-      //alert("Đăng ký thất bại! Vui lòng thử lại.");
       handleValidationErrors(error.response.data);
     }
   };

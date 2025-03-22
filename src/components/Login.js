@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../services/AuthContext"; // Import AuthContext
 import api from "../services/axiosConfig.js"; // Import file cấu hình Axios
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,7 +22,14 @@ const Login = () => {
         navigate("/dashboard");
       }
     } catch (error) {
-      alert("Đăng nhập thất bại! Vui lòng kiểm tra email hoặc mật khẩu.");
+      if (
+        error.response?.status === 401 &&
+        error.response?.data?.detail === "Failed"
+      ) {
+        toast.error("Sai tên đăng nhập hoặc mật khẩu!");
+      } else {
+        toast.error("Đã xảy ra lỗi. Vui lòng thử lại!");
+      }
     }
   };
 

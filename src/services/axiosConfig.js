@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const baseUrl = "http://localhost:5087"; // Thay bằng URL API của bạn
 
@@ -31,9 +32,17 @@ api.interceptors.response.use(
   },
   async (error) => {
     if (error.response?.status === 401) {
-      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      const errorMessage =
+        error.response?.data?.detail || "Unauthorized access";
+
+      // Nếu là lỗi xác thực đăng nhập
+      if (errorMessage === "Failed") {
+        toast.error("Sai tên đăng nhập hoặc mật khẩu!"); // Hiển thị lỗi cụ thể
+      } else {
+        toast.error(errorMessage); // Hiển thị lỗi khác (nếu có)
+      }
+
       localStorage.removeItem("accessToken"); // Xóa token khi hết hạn
-      window.location.href = "/login"; // Điều hướng về trang login
     }
     return Promise.reject(error);
   }
