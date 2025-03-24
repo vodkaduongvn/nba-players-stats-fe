@@ -262,36 +262,51 @@ const Dashboard = () => {
                   team.id !== selectedRightTeamId &&
                   handleTeamClick(team.id)
                 }
-                style={{ width: "200px", textAlign: "center" }}
+                style={{
+                  width: "200px",
+                  height: "90px",
+                  textAlign: "center",
+                  display: "flex",
+                  position: "relative",
+                }}
               >
+                {gameStats[0] !== undefined &&
+                gameStats[0].teamInfo &&
+                gameStats[0].teamInfo.filter((info) => info.abbr === team.abbr)
+                  .length > 0 ? (
+                  gameStats[0].teamInfo
+                    .filter((info) => info.abbr === team.abbr)
+                    .map((info, index) => (
+                      <div key={index}>
+                        <p className="game-date-title">
+                          Top 1 player in game on
+                          <br />
+                          {new Date(gameStats[0].gameDate).toLocaleDateString()}
+                        </p>
+                        <div className="game-stats">
+                          <p className="game-stats-title">
+                            {info.pointLeader}:
+                          </p>
+                          <p className="game-stats-content">{info.points}</p>
+                          <p className="game-stats-title">Position:</p>
+                          <p className="game-stats-content">{info.position}</p>
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="off-title">Off</div>
+                )}
                 <img
                   src={team.logo}
                   alt={team.name}
                   className="w-12 h-12 mb-2 mx-auto"
-                  style={{ width: "50px", height: "50px" }}
+                  style={{
+                    width: "35px",
+                    height: "35px",
+                    right: "0px",
+                    position: "absolute",
+                  }}
                 />
-                {gameStats[0] !== undefined &&
-                  gameStats[0].teamInfo &&
-                  gameStats[0].teamInfo
-                    .filter((info) => info.abbr === team.abbr)
-                    .map((info, index) => (
-                      <div key={index} className="game-stats">
-                        <p className="game-stats-title">Assist:</p>
-                        <p className="game-stats-content">
-                          {info.assistLeader}
-                        </p>
-                        <p className="game-stats-title">Point:</p>
-                        <p className="game-stats-content">{info.pointLeader}</p>
-                        <p className="game-stats-title">Reb:</p>
-                        <p className="game-stats-content">
-                          {info.reboundLeader}
-                        </p>
-                        <p className="game-stats-title">Date:</p>
-                        <p className="game-stats-content">
-                          {new Date(gameStats[0].gameDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                    ))}
               </li>
             ))}
           </ul>

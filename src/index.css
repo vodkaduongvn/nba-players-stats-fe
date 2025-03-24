@@ -55,7 +55,8 @@ code {
 .game-stats {
   display: grid;
   grid-template-columns: auto 1fr;
-  font-size: 15px;
+  font-size: 12px;
+  max-width: 150px;
 }
 
 .game-stats p {
@@ -70,4 +71,20 @@ code {
 .game-stats-content {
   text-align: left;
   padding-left: 10px;
+  color: red;
+}
+
+.game-date-title {
+  font-size: 13px;
+  display: flex;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.off-title {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  font-style: italic;
+  color: grey;
 }
