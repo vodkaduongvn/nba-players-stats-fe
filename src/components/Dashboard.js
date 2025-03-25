@@ -39,12 +39,14 @@ const Dashboard = () => {
   const [selectedRightTeamId, setSelectedRightTeamId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [gameStats, setGameStats] = useState([]);
+  const [leftTeamStatsLast5Games, setLeftTeamStatsLast5Games] = useState([]);
+  const [rightTeamStatsLast5Games, setRightTeamStatsLast5Games] = useState([]);
   const baseUrl = "http://localhost:5087";
 
   useEffect(() => {
     console.log(isAuthenticated);
     if (!isAuthenticated) {
-      navigate("/login"); // Chuyển hướng về login nếu chưa đăng nhập
+      navigate("/login");
     }
 
     const fetchTeams = async () => {
@@ -112,12 +114,16 @@ const Dashboard = () => {
     }
   };
 
-  const handleTeamClick = (teamId) => {
+  const handleTeamClick = async (teamId) => {
     if (loading) return;
+    const teamStats = await fetchTeamStatsLast5Games(teamId);
+
     if (lastColumn === "left") {
+      setLeftTeamStatsLast5Games(teamStats);
       fetchTeamStats(teamId, setLeftTeamStats, setSelectedLeftTeamId);
       setLastColumn("right");
     } else {
+      setRightTeamStatsLast5Games(teamStats);
       fetchTeamStats(teamId, setRightTeamStats, setSelectedRightTeamId);
       setLastColumn("left");
     }
@@ -131,7 +137,7 @@ const Dashboard = () => {
         ),
         datasets: [
           {
-            label: "Mins (Avg: " + playerStats.mins + ")",
+            label: "Minutes (Avg: " + playerStats.mins + ")",
             data: playerStats.pointsPerLast10Games.map((game) => game.mins),
             borderColor: "red",
             backgroundColor: "red",
@@ -226,6 +232,52 @@ const Dashboard = () => {
     });
   };
 
+  const renderTeamChart = (teamStats) => {
+    if (!teamStats || teamStats.length === 0) {
+      return <p>No team stats available. Click a team to show stats.</p>;
+    }
+
+    const data = {
+      labels: teamStats.map((game) =>
+        new Date(game.gameDate).toLocaleDateString()
+      ),
+      datasets: [
+        {
+          label: "Scores",
+          data: teamStats.map((game) => game.teamScore),
+          borderColor: "green",
+          backgroundColor: "green",
+          fill: false,
+        },
+      ],
+    };
+
+    const options = {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+        },
+        title: {
+          display: true,
+          text: "Team Stats (Last 5 Games)",
+        },
+      },
+    };
+
+    return <Line data={data} options={options} height={250} />;
+  };
+
+  const fetchTeamStatsLast5Games = async (teamId) => {
+    try {
+      const response = await api.get(`${baseUrl}/team-stats/${teamId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching team stats last 5 games:", error);
+      return [];
+    }
+  };
+
   return (
     <>
       <header className="container-fluid bg-gray-800 p-4 flex justify-between items-center">
@@ -264,7 +316,7 @@ const Dashboard = () => {
                 }
                 style={{
                   width: "200px",
-                  height: "90px",
+                  height: "100px",
                   textAlign: "center",
                   display: "flex",
                   position: "relative",
@@ -311,6 +363,7 @@ const Dashboard = () => {
             ))}
           </ul>
         </div>
+
         <div className="grid grid-cols-2 gap-4" style={{ marginLeft: "20px" }}>
           {/* Left stats */}
           <div
@@ -323,7 +376,11 @@ const Dashboard = () => {
                 : ""}
             </h2>
             {leftTeamStats ? (
-              renderChart(leftTeamStats)
+              <div>
+                {renderTeamChart(leftTeamStatsLast5Games)}
+
+                {renderChart(leftTeamStats)}
+              </div>
             ) : (
               <p>No team stats to display. Click a team to show stats.</p>
             )}
@@ -339,7 +396,11 @@ const Dashboard = () => {
                 : ""}
             </h2>
             {rightTeamStats ? (
-              renderChart(rightTeamStats)
+              <div>
+                {renderTeamChart(rightTeamStatsLast5Games)}
+
+                {renderChart(rightTeamStats)}
+              </div>
             ) : (
               <p>No team stats to display. Click a team to show stats.</p>
             )}
