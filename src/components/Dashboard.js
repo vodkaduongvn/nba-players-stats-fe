@@ -212,8 +212,10 @@ const Dashboard = () => {
               callback: function (val, index) {
                 const game = playerStats.pointsPerLast10Games[index];
                 return `${new Date(game.gameDate).toLocaleDateString()} - ${
-                  game.winOrLoss
-                } - ${game.teamScore} - ${game.oppTeamName}`;
+                  game.winOrLoss === "Won" ? "W" : "L"
+                } - ${game.teamScore} - ${game.oppTeamName} - ${
+                  game.oppTeamScore
+                }`;
               },
               color: function (context) {
                 const game = playerStats.pointsPerLast10Games[context.index];
@@ -233,18 +235,22 @@ const Dashboard = () => {
   };
 
   const renderTeamChart = (teamStats) => {
-    if (!teamStats || teamStats.length === 0) {
+    if (
+      !teamStats ||
+      !teamStats.scoreLast5Games ||
+      teamStats.scoreLast5Games.length === 0
+    ) {
       return <p>No team stats available. Click a team to show stats.</p>;
     }
 
     const data = {
-      labels: teamStats.map((game) =>
+      labels: teamStats.scoreLast5Games.map((game) =>
         new Date(game.gameDate).toLocaleDateString()
       ),
       datasets: [
         {
-          label: "Scores",
-          data: teamStats.map((game) => game.teamScore),
+          label: `Scores - Avg: ${teamStats.scoreAvg}`,
+          data: teamStats.scoreLast5Games.map((game) => game.teamScore),
           borderColor: "green",
           backgroundColor: "green",
           fill: false,
@@ -252,6 +258,7 @@ const Dashboard = () => {
       ],
     };
 
+    const average = teamStats.scoreAvg;
     const options = {
       responsive: true,
       plugins: {
@@ -261,6 +268,33 @@ const Dashboard = () => {
         title: {
           display: true,
           text: "Team Stats (Last 5 Games)",
+        },
+        annotation: {
+          annotations: {
+            line1: {
+              type: "line",
+              yMin: average,
+              yMax: average,
+              borderColor: "black",
+              borderWidth: 2,
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            callback: function (val, index) {
+              const game = teamStats.scoreLast5Games[index];
+              return `${new Date(game.gameDate).toLocaleDateString()} - ${
+                game.winOrLose === "Won" ? "W" : "L"
+              } - ${game.teamScore} - ${game.abbr} - ${game.abbrScore}`;
+            },
+            color: function (context) {
+              const game = teamStats.scoreLast5Games[context.index];
+              return game.winOrLose === "Won" ? "green" : "red";
+            },
+          },
         },
       },
     };
@@ -330,19 +364,32 @@ const Dashboard = () => {
                     .filter((info) => info.abbr === team.abbr)
                     .map((info, index) => (
                       <div key={index}>
-                        <p className="game-date-title">
-                          Top 1 player in game on
-                          <br />
-                          {new Date(gameStats[0].gameDate).toLocaleDateString()}
-                        </p>
-                        <div className="game-stats">
-                          <p className="game-stats-title">
-                            {info.pointLeader}:
-                          </p>
-                          <p className="game-stats-content">{info.points}</p>
-                          <p className="game-stats-title">Position:</p>
-                          <p className="game-stats-content">{info.position}</p>
-                        </div>
+                        {info.pointLeader && info.points && info.position ? (
+                          <>
+                            <p className="game-date-title">
+                              Top 1 player in game on
+                              <br />
+                              {new Date(
+                                gameStats[0].gameDate
+                              ).toLocaleDateString()}
+                            </p>
+                            <div className="game-stats">
+                              <p className="game-stats-title">
+                                {info.pointLeader}:
+                              </p>
+                              <p className="game-stats-content">
+                                {info.points}
+                              </p>
+                              <p className="game-stats-title">position:</p>
+                              <p className="game-stats-content">
+                                {info.position}
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <p className="game-stats-title"></p>
+                        )}
+                        <div class="live-text">Live</div>
                       </div>
                     ))
                 ) : (

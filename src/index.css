@@ -75,7 +75,7 @@ code {
 }
 
 .game-date-title {
-  font-size: 13px;
+  font-size: 12px;
   display: flex;
   text-align: left;
   text-decoration: underline;
@@ -83,8 +83,16 @@ code {
 
 .off-title {
   position: absolute;
-  right: 10px;
-  bottom: 5px;
+  right: 5px;
+  bottom: 2px;
   font-style: italic;
   color: grey;
+}
+
+.live-text {
+  position: absolute;
+  right: 5px;
+  bottom: 2px;
+  color: red;
+  font-style: italic;
 }

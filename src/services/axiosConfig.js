@@ -2,7 +2,6 @@ import axios from "axios";
 
 const baseUrl = "http://localhost:5087";
 
-// Tạo một instance của Axios
 const api = axios.create({
   baseURL: baseUrl,
   headers: {
