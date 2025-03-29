@@ -45,9 +45,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     console.log(isAuthenticated);
-    if (!isAuthenticated) {
-      navigate("/login");
-    }
+    // if (!isAuthenticated) {
+    //   navigate("/login");
+    // }
 
     const fetchTeams = async () => {
       try {
@@ -317,15 +317,35 @@ const Dashboard = () => {
       <header className="container-fluid bg-gray-800 p-4 flex justify-between items-center">
         <h1 className="text-white text-2xl font-bold">NBA Teams</h1>
         <div className="flex items-center space-x-4">
-          <span className="text-white font-medium">
-            Welcome, {user || "User"}!
-          </span>
-          <button
-            className="bg-red-500 text-white px-4 py-2 rounded"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
+          {/* Hiển thị "Welcome" nếu đã đăng nhập */}
+          {isAuthenticated ? (
+            <>
+              <span className="text-white font-medium">
+                Welcome, {user || "User"}!
+              </span>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </button>
+              <button
+                className="bg-green-500 text-white px-4 py-2 rounded"
+                onClick={() => navigate("/register")}
+              >
+                Register
+              </button>
+            </>
+          )}
         </div>
       </header>
       <hr style={{ border: "1px solid #c0c0c0" }}></hr>
@@ -389,7 +409,7 @@ const Dashboard = () => {
                         ) : (
                           <p className="game-stats-title"></p>
                         )}
-                        <div class="live-text">Live</div>
+                        <div className="live-text">Live</div>
                       </div>
                     ))
                 ) : (

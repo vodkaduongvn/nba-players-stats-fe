@@ -73,7 +73,7 @@ const Register = () => {
         </button>
         <p className="mt-4">
           Đã có tài khoản?{" "}
-          <a href="/" className="text-blue-600">
+          <a href="/login" className="text-blue-600">
             Đăng nhập
           </a>
         </p>

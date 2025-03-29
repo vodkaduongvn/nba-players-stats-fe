@@ -15,6 +15,15 @@ import "react-toastify/dist/ReactToastify.css";
 const ProtectedRoute = ({ children, redirectTo }) => {
   const { isAuthenticated } = useContext(AuthContext);
 
+  // Nếu chưa đăng nhập và truy cập login hoặc register, cho phép truy cập
+  if (
+    !isAuthenticated &&
+    (redirectTo === "/login" || redirectTo === "/register")
+  ) {
+    return children;
+  }
+
+  // Nếu đã đăng nhập và truy cập login hoặc register, chuyển hướng đến dashboard
   if (
     isAuthenticated &&
     (redirectTo === "/login" || redirectTo === "/register")
@@ -22,8 +31,9 @@ const ProtectedRoute = ({ children, redirectTo }) => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  if (!isAuthenticated && redirectTo === "/dashboard") {
-    return <Navigate to="/login" replace />;
+  // Nếu chưa đăng nhập và truy cập các trang khác, chuyển hướng đến dashboard
+  if (!isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -50,15 +60,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute redirectTo="/dashboard">
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
         <ToastContainer position="top-right" autoClose={3000} />
       </Router>
