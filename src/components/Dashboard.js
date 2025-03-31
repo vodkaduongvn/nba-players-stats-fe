@@ -355,12 +355,13 @@ const Dashboard = () => {
             {teams.map((team) => (
               <li
                 key={team.id}
-                className={`cursor-pointer p-2 bg-gray-100 hover:bg-gray-200 rounded shadow ${
+                className={`p-2 bg-gray-100 rounded shadow  ${
                   team.id === selectedLeftTeamId ||
                   team.id === selectedRightTeamId ||
-                  loading
+                  loading ||
+                  !team.isClickable
                     ? "cursor-not-allowed opacity-50"
-                    : ""
+                    : "cursor-pointer hover:bg-gray-200"
                 }`}
                 onClick={() =>
                   !loading &&
