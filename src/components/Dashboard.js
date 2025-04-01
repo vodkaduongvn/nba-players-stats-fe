@@ -317,7 +317,7 @@ const Dashboard = () => {
       <header className="container-fluid bg-gray-800 p-4 flex justify-between items-center">
         <h1 className="text-white text-2xl font-bold">NBA Teams</h1>
         <div className="flex items-center space-x-4">
-          {/* Hiển thị "Welcome" nếu đã đăng nhập */}
+          
           {isAuthenticated ? (
             <>
               <span className="text-white font-medium">
@@ -355,20 +355,23 @@ const Dashboard = () => {
             {teams.map((team) => (
               <li
                 key={team.id}
-                className={`p-2 bg-gray-100 rounded shadow  ${
-                  team.id === selectedLeftTeamId ||
-                  team.id === selectedRightTeamId ||
-                  loading ||
+                className={`p-2 bg-gray-100 rounded shadow ${
                   !team.isClickable
-                    ? "cursor-not-allowed opacity-50"
+                    ? "cursor-not-allowed"
+                    : team.id === selectedLeftTeamId ||
+                      team.id === selectedRightTeamId ||
+                      loading
+                    ? "cursor-not-allowed"
                     : "cursor-pointer hover:bg-gray-200"
                 }`}
-                onClick={() =>
-                  !loading &&
-                  team.id !== selectedLeftTeamId &&
-                  team.id !== selectedRightTeamId &&
-                  handleTeamClick(team.id)
-                }
+                onClick={() => {
+                  if (!team.isClickable || loading) {
+                    return;
+                  }
+                  if (team.id !== selectedLeftTeamId && team.id !== selectedRightTeamId) {
+                    handleTeamClick(team.id);
+                  }
+                }}
                 style={{
                   width: "200px",
                   height: "100px",
@@ -377,8 +380,13 @@ const Dashboard = () => {
                   position: "relative",
                 }}
               >
-                {gameStats[0] !== undefined &&
-                gameStats[0].teamInfo &&
+                {!team.isClickable && (
+                  <div className="absolute top-0 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded-tl">
+                    Register
+                  </div>
+                )}
+
+                {gameStats[0]?.teamInfo &&
                 gameStats[0].teamInfo.filter((info) => info.abbr === team.abbr)
                   .length > 0 ? (
                   gameStats[0].teamInfo
