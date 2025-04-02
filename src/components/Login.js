@@ -13,14 +13,14 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post("/login", { email, password });
-
-      if (response.status === 200) {
-        const { accessToken } = response.data; // Giả sử API trả về userName
-        localStorage.setItem("accessToken", accessToken);
-        login(accessToken, email); // Gọi hàm login với token và tên người dùng
-        navigate("/dashboard");
-      }
+      const userData = await login(email, password);
+      console.log(userData);
+      // Check isDonated status and navigate accordingly
+      // if (userData && userData.isDonated) {
+      //   navigate('/dashboard');
+      // } else {
+      //   navigate('/donation');
+      // }
     } catch (error) {
       if (
         error.response?.status === 401 &&

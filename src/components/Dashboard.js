@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 //import axios from "axios";
 import api from "../services/axiosConfig.js";
+import { toast } from "react-toastify";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -16,6 +17,7 @@ import {
 import AnnotationPlugin from "chartjs-plugin-annotation";
 import * as signalR from "@microsoft/signalr";
 import { AuthContext } from "../services/AuthContext";
+import { ToastContainer } from "react-toastify";
 
 ChartJS.register(
   LineElement,
@@ -31,6 +33,7 @@ ChartJS.register(
 const Dashboard = () => {
   const { isAuthenticated, user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [showDonatePopup, setShowDonatePopup] = useState(false);
   const [teams, setTeams] = useState([]);
   const [leftTeamStats, setLeftTeamStats] = useState(null);
   const [rightTeamStats, setRightTeamStats] = useState(null);
@@ -314,6 +317,32 @@ const Dashboard = () => {
 
   return (
     <>
+      {/* Donate Popup */}
+      {showDonatePopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Please Donate</h2>
+            <p className="text-gray-600 mb-6 text-center">
+              To access detailed team statistics and player analysis, please support us with a donation.
+            </p>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={() => navigate('/donation')}
+                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors"
+              >
+                Donate Now
+              </button>
+              <button
+                onClick={() => setShowDonatePopup(false)}
+                className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="container-fluid bg-gray-800 p-4 flex justify-between items-center">
         <h1 className="text-white text-2xl font-bold">NBA Teams</h1>
         <div className="flex items-center space-x-4">
@@ -321,7 +350,7 @@ const Dashboard = () => {
           {isAuthenticated ? (
             <>
               <span className="text-white font-medium">
-                Welcome, {user || "User"}!
+                Welcome, {user.email || "User"}!
               </span>
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded"
@@ -356,16 +385,19 @@ const Dashboard = () => {
               <li
                 key={team.id}
                 className={`p-2 bg-gray-100 rounded shadow ${
-                  !team.isClickable
+                  !team.isClickable && !user
                     ? "cursor-not-allowed"
                     : team.id === selectedLeftTeamId ||
                       team.id === selectedRightTeamId ||
                       loading
-                    ? "cursor-not-allowed"
+                    ? "cursor-pointer hover:bg-gray-200"
                     : "cursor-pointer hover:bg-gray-200"
                 }`}
                 onClick={() => {
-                  if (!team.isClickable || loading) {
+                  if ((!team.isClickable && !user) || loading) {
+                    return;
+                  }else if (!team.isClickable && !user.isDonated) {
+                    setShowDonatePopup(true);
                     return;
                   }
                   if (team.id !== selectedLeftTeamId && team.id !== selectedRightTeamId) {
@@ -380,9 +412,14 @@ const Dashboard = () => {
                   position: "relative",
                 }}
               >
-                {!team.isClickable && (
+                {!team.isClickable && !user && (
                   <div className="absolute top-0 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded-tl">
                     Register
+                  </div>
+                )}
+                {!team.isClickable && user && !user.isDonated && (
+                  <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
+                    Donate
                   </div>
                 )}
 
@@ -392,7 +429,7 @@ const Dashboard = () => {
                   gameStats[0].teamInfo
                     .filter((info) => info.abbr === team.abbr)
                     .map((info, index) => (
-                      <div key={index}>
+                      <div key={index} style={{ marginTop :"17px"}}>
                         {info.pointLeader && info.points && info.position ? (
                           <>
                             <p className="game-date-title">

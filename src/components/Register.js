@@ -20,9 +20,6 @@ const Register = () => {
       console.log("res:", response);
       console.log("status", response.status);
       if (response.status === 200) {
-        // const accessToken = response.data.accessToken;
-        // localStorage.setItem("accessToken", accessToken); // Lưu token
-        //login(accessToken, email);
         console.log("status", response.status);
         navigate("/dashboard"); // Điều hướng về trang đăng nhập
       }
