@@ -397,8 +397,8 @@ const Dashboard = () => {
                   if ((!team.isClickable && !user) || loading) {
                     return;
                   }else if (!team.isClickable && !user.isDonated) {
-                    setShowDonatePopup(true);
-                    return;
+                    //setShowDonatePopup(true);
+                    //return;
                   }
                   if (team.id !== selectedLeftTeamId && team.id !== selectedRightTeamId) {
                     handleTeamClick(team.id);
