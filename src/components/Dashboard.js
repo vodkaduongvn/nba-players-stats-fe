@@ -42,8 +42,8 @@ const Dashboard = () => {
   const [selectedRightTeamId, setSelectedRightTeamId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [gameStats, setGameStats] = useState([]);
-  const [leftTeamStatsLast5Games, setLeftTeamStatsLast5Games] = useState([]);
-  const [rightTeamStatsLast5Games, setRightTeamStatsLast5Games] = useState([]);
+  const [leftTeamStatsLast10Games, setLeftTeamStatsLast10Games] = useState([]);
+  const [rightTeamStatsLast10Games, setRightTeamStatsLast10Games] = useState([]);
   const baseUrl = "http://localhost:5087";
 
   useEffect(() => {
@@ -119,14 +119,14 @@ const Dashboard = () => {
 
   const handleTeamClick = async (teamId) => {
     if (loading) return;
-    const teamStats = await fetchTeamStatsLast5Games(teamId);
+    const teamStats = await fetchTeamStatsLast10Games(teamId);
 
     if (lastColumn === "left") {
-      setLeftTeamStatsLast5Games(teamStats);
+      setLeftTeamStatsLast10Games(teamStats);
       fetchTeamStats(teamId, setLeftTeamStats, setSelectedLeftTeamId);
       setLastColumn("right");
     } else {
-      setRightTeamStatsLast5Games(teamStats);
+      setRightTeamStatsLast10Games(teamStats);
       fetchTeamStats(teamId, setRightTeamStats, setSelectedRightTeamId);
       setLastColumn("left");
     }
@@ -240,20 +240,20 @@ const Dashboard = () => {
   const renderTeamChart = (teamStats) => {
     if (
       !teamStats ||
-      !teamStats.scoreLast5Games ||
-      teamStats.scoreLast5Games.length === 0
+      !teamStats.scoreLastGames ||
+      teamStats.scoreLastGames.length === 0
     ) {
       return <p>No team stats available. Click a team to show stats.</p>;
     }
 
     const data = {
-      labels: teamStats.scoreLast5Games.map((game) =>
+      labels: teamStats.scoreLastGames.map((game) =>
         new Date(game.gameDate).toLocaleDateString()
       ),
       datasets: [
         {
           label: `Scores - Avg: ${teamStats.scoreAvg}`,
-          data: teamStats.scoreLast5Games.map((game) => game.teamScore),
+            data: teamStats.scoreLastGames.map((game) => game.teamScore),
           borderColor: "green",
           backgroundColor: "green",
           fill: false,
@@ -270,7 +270,7 @@ const Dashboard = () => {
         },
         title: {
           display: true,
-          text: "Team Stats (Last 5 Games)",
+          text: "Team Stats (Last 10 Games)",
         },
         annotation: {
           annotations: {
@@ -288,13 +288,13 @@ const Dashboard = () => {
         x: {
           ticks: {
             callback: function (val, index) {
-              const game = teamStats.scoreLast5Games[index];
+              const game = teamStats.scoreLastGames[index];
               return `${new Date(game.gameDate).toLocaleDateString()} - ${
                 game.winOrLose === "Won" ? "W" : "L"
               } - ${game.teamScore} - ${game.abbr} - ${game.abbrScore}`;
             },
             color: function (context) {
-              const game = teamStats.scoreLast5Games[context.index];
+              const game = teamStats.scoreLastGames[context.index];
               return game.winOrLose === "Won" ? "green" : "red";
             },
           },
@@ -305,7 +305,7 @@ const Dashboard = () => {
     return <Line data={data} options={options} height={250} />;
   };
 
-  const fetchTeamStatsLast5Games = async (teamId) => {
+  const fetchTeamStatsLast10Games = async (teamId) => {
     try {
       const response = await api.get(`${baseUrl}/team-stats/${teamId}`);
       return response.data;
@@ -490,7 +490,7 @@ const Dashboard = () => {
             </h2>
             {leftTeamStats ? (
               <div>
-                {renderTeamChart(leftTeamStatsLast5Games)}
+                {renderTeamChart(leftTeamStatsLast10Games)}
 
                 {renderChart(leftTeamStats)}
               </div>
@@ -510,7 +510,7 @@ const Dashboard = () => {
             </h2>
             {rightTeamStats ? (
               <div>
-                {renderTeamChart(rightTeamStatsLast5Games)}
+                {renderTeamChart(rightTeamStatsLast10Games)}
 
                 {renderChart(rightTeamStats)}
               </div>
