@@ -43,7 +43,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [gameStats, setGameStats] = useState([]);
   const [leftTeamStatsLast10Games, setLeftTeamStatsLast10Games] = useState([]);
-  const [rightTeamStatsLast10Games, setRightTeamStatsLast10Games] = useState([]);
+  const [rightTeamStatsLast10Games, setRightTeamStatsLast10Games] = useState(
+    []
+  );
   const baseUrl = "http://localhost:5087";
 
   useEffect(() => {
@@ -253,7 +255,7 @@ const Dashboard = () => {
       datasets: [
         {
           label: `Scores - Avg: ${teamStats.scoreAvg}`,
-            data: teamStats.scoreLastGames.map((game) => game.teamScore),
+          data: teamStats.scoreLastGames.map((game) => game.teamScore),
           borderColor: "green",
           backgroundColor: "green",
           fill: false,
@@ -321,13 +323,16 @@ const Dashboard = () => {
       {showDonatePopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Please Donate</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
+              Please Donate
+            </h2>
             <p className="text-gray-600 mb-6 text-center">
-              To access detailed team statistics and player analysis, please support us with a donation.
+              To access detailed team statistics and player analysis, please
+              support us with a donation.
             </p>
             <div className="flex justify-center space-x-4">
               <button
-                onClick={() => navigate('/donation')}
+                onClick={() => navigate("/donation")}
                 className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors"
               >
                 Donate Now
@@ -346,7 +351,6 @@ const Dashboard = () => {
       <header className="container-fluid bg-gray-800 p-4 flex justify-between items-center">
         <h1 className="text-white text-2xl font-bold">NBA Teams</h1>
         <div className="flex items-center space-x-4">
-          
           {isAuthenticated ? (
             <>
               <span className="text-white font-medium">
@@ -381,99 +385,104 @@ const Dashboard = () => {
       <div className="container mx-auto p-4" style={{ display: "flex" }}>
         <div>
           <ul className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
-            {teams.map((team) => (
-              <li
-                key={team.id}
-                className={`p-2 bg-gray-100 rounded shadow ${
-                  !team.isClickable && !user
-                    ? "cursor-not-allowed"
-                    : team.id === selectedLeftTeamId ||
-                      team.id === selectedRightTeamId ||
-                      loading
-                    ? "cursor-pointer hover:bg-gray-200"
-                    : "cursor-pointer hover:bg-gray-200"
-                }`}
-                onClick={() => {
-                  if ((!team.isClickable && !user) || loading) {
-                    return;
-                  }else if (!team.isClickable && !user.isDonated) {
-                    //setShowDonatePopup(true);
-                    //return;
-                  }
-                  if (team.id !== selectedLeftTeamId && team.id !== selectedRightTeamId) {
-                    handleTeamClick(team.id);
-                  }
-                }}
-                style={{
-                  width: "200px",
-                  height: "100px",
-                  textAlign: "center",
-                  display: "flex",
-                  position: "relative",
-                }}
-              >
-                {!team.isClickable && !user && (
-                  <div className="absolute top-0 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded-tl">
-                    Register
-                  </div>
-                )}
-                {!team.isClickable && user && !user.isDonated && (
-                  <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
-                    Donate
-                  </div>
-                )}
-
-                {gameStats[0]?.teamInfo &&
-                gameStats[0].teamInfo.filter((info) => info.abbr === team.abbr)
-                  .length > 0 ? (
-                  gameStats[0].teamInfo
-                    .filter((info) => info.abbr === team.abbr)
-                    .map((info, index) => (
-                      <div key={index} style={{ marginTop :"17px"}}>
-                        {info.pointLeader && info.points && info.position ? (
-                          <>
-                            <p className="game-date-title">
-                              Top 1 player in game on
-                              <br />
-                              {new Date(
-                                gameStats[0].gameDate
-                              ).toLocaleDateString()}
-                            </p>
-                            <div className="game-stats">
-                              <p className="game-stats-title">
-                                {info.pointLeader}:
-                              </p>
-                              <p className="game-stats-content">
-                                {info.points}
-                              </p>
-                              <p className="game-stats-title">position:</p>
-                              <p className="game-stats-content">
-                                {info.position}
-                              </p>
-                            </div>
-                          </>
-                        ) : (
-                          <p className="game-stats-title"></p>
-                        )}
-                        <div className="live-text">Live</div>
-                      </div>
-                    ))
-                ) : (
-                  <div className="off-title">Off</div>
-                )}
-                <img
-                  src={team.logo}
-                  alt={team.name}
-                  className="w-12 h-12 mb-2 mx-auto"
-                  style={{
-                    width: "35px",
-                    height: "35px",
-                    right: "0px",
-                    position: "absolute",
+            {Array.isArray(teams) &&
+              teams.map((team) => (
+                <li
+                  key={team.id}
+                  className={`p-2 bg-gray-100 rounded shadow ${
+                    !team.isClickable && !user
+                      ? "cursor-not-allowed"
+                      : team.id === selectedLeftTeamId ||
+                        team.id === selectedRightTeamId ||
+                        loading
+                      ? "cursor-pointer hover:bg-gray-200"
+                      : "cursor-pointer hover:bg-gray-200"
+                  }`}
+                  onClick={() => {
+                    if ((!team.isClickable && !user) || loading) {
+                      return;
+                    } else if (!team.isClickable && !user.isDonated) {
+                      setShowDonatePopup(true);
+                      return;
+                    }
+                    if (
+                      team.id !== selectedLeftTeamId &&
+                      team.id !== selectedRightTeamId
+                    ) {
+                      handleTeamClick(team.id);
+                    }
                   }}
-                />
-              </li>
-            ))}
+                  style={{
+                    width: "200px",
+                    height: "100px",
+                    textAlign: "center",
+                    display: "flex",
+                    position: "relative",
+                  }}
+                >
+                  {!team.isClickable && !user && (
+                    <div className="absolute top-0 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded-tl">
+                      Register
+                    </div>
+                  )}
+                  {!team.isClickable && user && !user.isDonated && (
+                    <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
+                      Donate
+                    </div>
+                  )}
+
+                  {gameStats[0]?.teamInfo &&
+                  gameStats[0].teamInfo.filter(
+                    (info) => info.abbr === team.abbr
+                  ).length > 0 ? (
+                    gameStats[0].teamInfo
+                      .filter((info) => info.abbr === team.abbr)
+                      .map((info, index) => (
+                        <div key={index} style={{ marginTop: "17px" }}>
+                          {info.pointLeader && info.points && info.position ? (
+                            <>
+                              <p className="game-date-title">
+                                Top 1 player in game on
+                                <br />
+                                {new Date(
+                                  gameStats[0].gameDate
+                                ).toLocaleDateString()}
+                              </p>
+                              <div className="game-stats">
+                                <p className="game-stats-title">
+                                  {info.pointLeader}:
+                                </p>
+                                <p className="game-stats-content">
+                                  {info.points}
+                                </p>
+                                <p className="game-stats-title">position:</p>
+                                <p className="game-stats-content">
+                                  {info.position}
+                                </p>
+                              </div>
+                            </>
+                          ) : (
+                            <p className="game-stats-title"></p>
+                          )}
+                          <div className="live-text">Live</div>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="off-title">Off</div>
+                  )}
+                  <img
+                    src={team.logo}
+                    alt={team.name}
+                    className="w-12 h-12 mb-2 mx-auto"
+                    style={{
+                      width: "35px",
+                      height: "35px",
+                      right: "0px",
+                      position: "absolute",
+                    }}
+                  />
+                </li>
+              ))}
           </ul>
         </div>
 
