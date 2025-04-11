@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../services/AuthContext";
 import api from "../services/axiosConfig";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify"; // Removed ToastContainer import
 import "react-toastify/dist/ReactToastify.css";
 
 const Admin = () => {
@@ -111,17 +111,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      {/* Removed redundant ToastContainer */}
       <h1 className="text-3xl font-bold mb-6">Admin Donation Panel</h1>
 
       {/* User Search Section */}
