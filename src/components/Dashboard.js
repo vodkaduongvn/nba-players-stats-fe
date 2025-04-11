@@ -137,8 +137,8 @@ const Dashboard = () => {
   const renderChart = (teamStats) => {
     return teamStats.map((playerStats) => {
       const data = {
-        labels: playerStats.pointsPerLast10Games.map((game) =>
-          new Date(game.gameDate).toLocaleDateString()
+        labels: playerStats.pointsPerLast10Games.map(
+          (game) => new Date(game.gameDate + "Z").toLocaleDateString() // Append 'Z'
         ),
         datasets: [
           {
@@ -216,7 +216,10 @@ const Dashboard = () => {
             ticks: {
               callback: function (val, index) {
                 const game = playerStats.pointsPerLast10Games[index];
-                return `${new Date(game.gameDate).toLocaleDateString()} - ${
+                return `${new Date(
+                  game.gameDate + "Z"
+                ).toLocaleDateString()} - ${
+                  // Append 'Z'
                   game.winOrLoss === "Won" ? "W" : "L"
                 } - ${game.teamScore} - ${game.oppTeamName} - ${
                   game.oppTeamScore
@@ -249,8 +252,8 @@ const Dashboard = () => {
     }
 
     const data = {
-      labels: teamStats.scoreLastGames.map((game) =>
-        new Date(game.gameDate).toLocaleDateString()
+      labels: teamStats.scoreLastGames.map(
+        (game) => new Date(game.gameDate + "Z").toLocaleDateString() // Append 'Z'
       ),
       datasets: [
         {
@@ -291,7 +294,8 @@ const Dashboard = () => {
           ticks: {
             callback: function (val, index) {
               const game = teamStats.scoreLastGames[index];
-              return `${new Date(game.gameDate).toLocaleDateString()} - ${
+              return `${new Date(game.gameDate + "Z").toLocaleDateString()} - ${
+                // Append 'Z'
                 game.winOrLose === "Won" ? "W" : "L"
               } - ${game.teamScore} - ${game.abbr} - ${game.abbrScore}`;
             },
@@ -444,8 +448,8 @@ const Dashboard = () => {
                               <p className="game-date-title">
                                 Top 1 player in game on
                                 <br />
-                                {new Date(
-                                  gameStats[0].gameDate
+                                {new Date( // Append 'Z'
+                                  gameStats[0].gameDate + "Z"
                                 ).toLocaleDateString()}
                               </p>
                               <div className="game-stats">
