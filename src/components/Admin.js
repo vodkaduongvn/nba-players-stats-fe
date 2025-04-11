@@ -86,7 +86,7 @@ const Admin = () => {
 
     setLoadingSubmit(true);
     try {
-      await api.post(`${baseUrl}/donations`, {
+      await api.post(`${baseUrl}/api/admin/donations`, {
         username: foundUser.userName, // Use the username from the found user state
         amount: amount,
       });
