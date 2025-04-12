@@ -85,9 +85,9 @@ export const AuthContextProvider = ({ children }) => {
     setUser(null);
   };
 
-  // const isDonated = () => {
-  //   return user?.isDonated === true;
-  // };
+  const isDonated = () => {
+    return user?.isDonated === true;
+  };
 
   const value = {
     isAuthenticated,
@@ -95,7 +95,7 @@ export const AuthContextProvider = ({ children }) => {
     loading,
     login,
     logout,
-    // isDonated
+    isDonated,
   };
 
   return (

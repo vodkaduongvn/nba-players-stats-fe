@@ -404,11 +404,26 @@ const Dashboard = () => {
                   }`}
                   onClick={() => {
                     if ((!team.isClickable && !user) || loading) {
+                      // If team is restricted and no user is logged in, or loading, do nothing
                       return;
-                    } else if (!team.isClickable && !user.isDonated) {
-                      setShowDonatePopup(true);
+                    } else if (
+                      !team.isClickable &&
+                      user &&
+                      user.isDonated === "False"
+                    ) {
+                      // If team is restricted and user exists and has not donated
+                      setShowDonatePopup(true); // Show donate popup
                       return;
+                    } else if (
+                      !team.isClickable &&
+                      user &&
+                      user.isDonated !== "False"
+                    ) {
+                      // If team is restricted and user exists and HAS donated (or status is not "False")
+                      // Allow click or do nothing, depending on desired behavior for donated users on restricted teams
+                      // For now, let's assume they can click if donated. If not, add 'return;' here.
                     }
+                    // If team is clickable, or if it's restricted but user HAS donated, proceed with click handler
                     if (
                       team.id !== selectedLeftTeamId &&
                       team.id !== selectedRightTeamId
@@ -429,7 +444,8 @@ const Dashboard = () => {
                       Register
                     </div>
                   )}
-                  {!team.isClickable && user && !user.isDonated && (
+                  {/* Show Donate label if team is restricted and user is logged in but hasn't donated */}
+                  {!team.isClickable && user && user.isDonated === "False" && (
                     <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
                       Donate
                     </div>
