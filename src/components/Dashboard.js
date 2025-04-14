@@ -361,6 +361,12 @@ const Dashboard = () => {
                 Welcome, {user.email || "User"}!
               </span>
               <button
+                className="bg-orange-500 text-white px-4 py-2 rounded mr-2" // Added margin-right for spacing
+                onClick={() => setShowDonatePopup(true)}
+              >
+                Donate
+              </button>
+              <button
                 className="bg-red-500 text-white px-4 py-2 rounded"
                 onClick={handleLogout}
               >
