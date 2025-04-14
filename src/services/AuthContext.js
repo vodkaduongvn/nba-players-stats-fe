@@ -96,6 +96,7 @@ export const AuthContextProvider = ({ children }) => {
     login,
     logout,
     isDonated,
+    setUser, // Expose setUser
   };
 
   return (

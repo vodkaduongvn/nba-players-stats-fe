@@ -31,7 +31,7 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
-  const { isAuthenticated, user, logout } = useContext(AuthContext);
+  const { isAuthenticated, user, logout, setUser } = useContext(AuthContext); // Add setUser
   const navigate = useNavigate();
   const [showDonatePopup, setShowDonatePopup] = useState(false);
   const [teams, setTeams] = useState([]);
@@ -75,6 +75,26 @@ const Dashboard = () => {
     connection.on("ReceiveGameStats", (newGameStats) => {
       console.log(newGameStats);
       setGameStats([newGameStats]);
+    });
+
+    // Add listener for donation updates
+    connection.on("ReceiveDonationUpdate", (updatedUserId) => {
+      console.log("Received donation update for user ID:", updatedUserId);
+      // Check if the update is for the currently logged-in user
+      if (user && user.id === updatedUserId) {
+        console.log("Donation update matches current user. Updating state...");
+        // Close the popup if it's open
+        setShowDonatePopup(false);
+
+        // Update user state in context and localStorage
+        const updatedUser = { ...user, isDonated: true }; // Create updated user object
+        setUser(updatedUser); // Update context state
+        localStorage.setItem("user", JSON.stringify(updatedUser)); // Update localStorage
+
+        toast.success("Donation successful! You now have full access.");
+        // Optionally: Re-fetch teams or update team clickability state if needed
+        // fetchTeams(); // Could re-fetch teams if their 'isClickable' depends on user donation status fetched from backend
+      }
     });
 
     const start = async () => {
@@ -327,9 +347,17 @@ const Dashboard = () => {
       {showDonatePopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
+            <h2 className="text-2xl font-bold mb-2 text-center text-gray-800">
+              {" "}
+              {/* Reduced bottom margin */}
               Please Donate
             </h2>
+            {/* Add username display */}
+            {user && (
+              <p className="text-lg font-medium mb-4 text-center text-gray-700">
+                Hi, {user.email}!
+              </p>
+            )}
             <p className="text-gray-600 mb-6 text-center">
               To access detailed team statistics and player analysis, please
               support us with a donation.
@@ -409,27 +437,25 @@ const Dashboard = () => {
                       : "cursor-pointer hover:bg-gray-200"
                   }`}
                   onClick={() => {
+                    // Block access immediately if team is restricted AND user doesn't exist (or is loading)
                     if ((!team.isClickable && !user) || loading) {
-                      // If team is restricted and no user is logged in, or loading, do nothing
                       return;
-                    } else if (
-                      !team.isClickable &&
-                      user &&
-                      user.isDonated === "False"
-                    ) {
-                      // If team is restricted and user exists and has not donated
-                      setShowDonatePopup(true); // Show donate popup
-                      return;
-                    } else if (
+                    }
+
+                    // If team is restricted AND user exists BUT hasn't donated, show popup and block click
+                    if (
                       !team.isClickable &&
                       user &&
                       user.isDonated !== "False"
                     ) {
-                      // If team is restricted and user exists and HAS donated (or status is not "False")
-                      // Allow click or do nothing, depending on desired behavior for donated users on restricted teams
-                      // For now, let's assume they can click if donated. If not, add 'return;' here.
+                      setShowDonatePopup(true);
+                      return;
                     }
-                    // If team is clickable, or if it's restricted but user HAS donated, proceed with click handler
+
+                    // If we reach here, it means either:
+                    // 1. The team is clickable (team.isClickable is true)
+                    // 2. The team is restricted BUT the user HAS donated (user.isDonated is true)
+                    // In both cases, allow the click if the team isn't already selected.
                     if (
                       team.id !== selectedLeftTeamId &&
                       team.id !== selectedRightTeamId
@@ -451,7 +477,7 @@ const Dashboard = () => {
                     </div>
                   )}
                   {/* Show Donate label if team is restricted and user is logged in but hasn't donated */}
-                  {!team.isClickable && user && user.isDonated === "False" && (
+                  {!team.isClickable && user && user.isDonated !== "False" && (
                     <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
                       Donate
                     </div>
