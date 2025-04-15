@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Import Link
 //import axios from "axios";
 import api from "../services/axiosConfig.js";
 import { toast } from "react-toastify";
@@ -626,11 +626,33 @@ const Dashboard = () => {
         </div>
       </div>
       <hr style={{ border: "1px solid #c0c0c0" }}></hr>
-      <footer
-        className="container-fluid bg-gray-800 mx-auto p-4 mt-8"
-        style={{ fontStyle: "italic", textAlign: "center" }}
-      >
-        <p className="text-white text-center">
+      {/* Sửa lỗi: Gộp className và xóa style không cần thiết */}
+      <footer className="container-fluid bg-gray-800 mx-auto p-4 mt-8 text-white text-center">
+        {/* Chart Color Legend */}
+        <div className="mb-4 text-xs">
+          <span className="font-semibold">Chart Legend:</span>
+          <span className="ml-2">
+            <span style={{ color: "red" }}>●</span> Minutes
+          </span>
+          <span className="ml-2">
+            <span style={{ color: "green" }}>●</span> Points/Scores
+          </span>
+          <span className="ml-2">
+            <span style={{ color: "blue" }}>●</span> Rebounds
+          </span>
+          <span className="ml-2">
+            <span style={{ color: "orange" }}>●</span> Assists
+          </span>
+          <span className="ml-2">
+            {" "}
+            | (Avg = Average of last 10 visible games)
+          </span>
+        </div>
+
+        {/* Existing links and Disclaimer */}
+        <p className="text-sm">
+          {" "}
+          {/* Changed size for consistency */}
           For more information, visit{" "}
           <a
             href="https://www.nba.com"
@@ -640,6 +662,10 @@ const Dashboard = () => {
           >
             NBA.com
           </a>
+          <span className="mx-2">|</span> {/* Separator */}
+          <Link to="/disclaimer" className="text-blue-400 hover:underline">
+            Disclaimer
+          </Link>
         </p>
       </footer>
       {/* Log giá trị loading ngay trước khi render overlay */}

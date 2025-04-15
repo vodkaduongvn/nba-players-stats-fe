@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import Admin from "./components/Admin"; // Import the Admin component
+import Disclaimer from "./components/Disclaimer"; // Import the Disclaimer component
 import { AuthContextProvider, AuthContext } from "./services/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -73,6 +74,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          {/* Add public route for Disclaimer */}
+          <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
         <ToastContainer position="top-right" autoClose={3000} />
