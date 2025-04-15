@@ -33,6 +33,17 @@ const Login = () => {
     }
   };
 
+  // Handle Enter key press in input fields
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      // We need to manually trigger the form submission logic here.
+      // Since handleLogin expects an event, we can simulate one or just call the core logic.
+      // Let's call handleLogin directly, assuming it doesn't strictly need the form event 'e'
+      // after preventDefault(). If it does, we might need a ref to the form to call requestSubmit().
+      handleLogin(event); // Pass the keyboard event, handleLogin has preventDefault
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-200">
       <form
@@ -46,6 +57,7 @@ const Login = () => {
           className="w-full mb-4 p-2 border"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyDown} // Add onKeyDown handler
         />
         <input
           type="password"
@@ -53,6 +65,7 @@ const Login = () => {
           className="w-full mb-4 p-2 border"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={handleKeyDown} // Add onKeyDown handler
         />
         <button
           type="submit"
