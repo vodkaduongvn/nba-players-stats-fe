@@ -530,7 +530,7 @@ const Dashboard = () => {
                   {!team.isClickable &&
                     user?.isDonated === "False" && ( // Added optional chaining for user
                       <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
-                        Donate
+                        Donate {/* Kept as Donate */}
                       </div>
                     )}
 
@@ -544,7 +544,7 @@ const Dashboard = () => {
                           {info.pointLeader && info.points && info.position ? (
                             <>
                               <p className="game-date-title">
-                                Top 1 player in game on
+                                Top player in game on {/* Translated */}
                                 <br />
                                 {new Date(
                                   gameStats[0].gameDate + "Z"
@@ -566,11 +566,12 @@ const Dashboard = () => {
                           ) : (
                             <p className="game-stats-title"></p>
                           )}
-                          <div className="live-text">Live</div>
+                          <div className="live-text">Live</div>{" "}
+                          {/* Kept as Live */}
                         </div>
                       ))
                   ) : (
-                    <div className="off-title">Off</div>
+                    <div className="off-title">Off</div> /* Kept as Off */
                   )}
                   <img
                     src={team.logo}
@@ -603,7 +604,9 @@ const Dashboard = () => {
                 {renderChart(leftTeamStats)}
               </div>
             ) : (
-              <p>No team stats to display. Click a team to show stats.</p>
+              <p>
+                No team stats to display. Click a team to show stats.
+              </p> /* Already English */
             )}
           </div>
           {/* Right stats */}
@@ -620,7 +623,9 @@ const Dashboard = () => {
                 {renderChart(rightTeamStats)}
               </div>
             ) : (
-              <p>No team stats to display. Click a team to show stats.</p>
+              <p>
+                No team stats to display. Click a team to show stats.
+              </p> /* Already English */
             )}
           </div>
         </div>

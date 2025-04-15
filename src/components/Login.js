@@ -26,9 +26,9 @@ const Login = () => {
         error.response?.status === 401 &&
         error.response?.data?.detail === "Failed"
       ) {
-        toast.error("Sai tên đăng nhập hoặc mật khẩu!");
+        toast.error("Incorrect email or password!");
       } else {
-        toast.error("Đã xảy ra lỗi. Vui lòng thử lại!");
+        toast.error("An error occurred. Please try again!");
       }
     }
   };
@@ -39,7 +39,7 @@ const Login = () => {
         onSubmit={handleLogin}
         className="bg-white p-8 rounded shadow-md w-96"
       >
-        <h2 className="text-xl font-bold mb-4">Đăng nhập</h2>
+        <h2 className="text-xl font-bold mb-4">Login</h2>
         <input
           type="email"
           placeholder="Email"
@@ -49,7 +49,7 @@ const Login = () => {
         />
         <input
           type="password"
-          placeholder="Mật khẩu"
+          placeholder="Password"
           className="w-full mb-4 p-2 border"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -58,12 +58,12 @@ const Login = () => {
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
-          Đăng nhập
+          Login
         </button>
         <p className="mt-4">
-          Chưa có tài khoản?{" "}
+          Don't have an account?
           <a href="/register" className="text-blue-600">
-            Đăng ký
+            &nbsp; Register
           </a>
         </p>
       </form>

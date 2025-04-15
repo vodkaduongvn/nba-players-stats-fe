@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../services/AuthContext";
 import api from "../services/axiosConfig.js"; // Import file cấu hình Axios
 
 const Register = () => {
@@ -21,7 +20,7 @@ const Register = () => {
       console.log("status", response.status);
       if (response.status === 200) {
         console.log("status", response.status);
-        navigate("/dashboard"); // Điều hướng về trang đăng nhập
+        navigate("/dashboard");
       }
     } catch (error) {
       handleValidationErrors(error.response.data);
@@ -30,11 +29,9 @@ const Register = () => {
   function handleValidationErrors(errorData) {
     const { title, errors } = errorData;
 
-    // Duyệt qua các lỗi validation và hiển thị chúng
     if (errors) {
       const messages = Object.values(errors).flatMap((messages) => messages);
 
-      // Hiển thị các lỗi mà không kèm trường
       toast.error(messages.join("\n"));
     } else {
       toast.error(title || "Validation error occurred.");
@@ -47,7 +44,7 @@ const Register = () => {
         onSubmit={handleRegister}
         className="bg-white p-8 rounded shadow-md w-96"
       >
-        <h2 className="text-xl font-bold mb-4">Đăng ký</h2>
+        <h2 className="text-xl font-bold mb-4">Register</h2>
         <input
           type="email"
           placeholder="Email"
@@ -57,7 +54,7 @@ const Register = () => {
         />
         <input
           type="password"
-          placeholder="Mật khẩu"
+          placeholder="Password"
           className="w-full mb-4 p-2 border"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -66,12 +63,12 @@ const Register = () => {
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
-          Đăng ký
+          Register
         </button>
         <p className="mt-4">
-          Đã có tài khoản?{" "}
+          Already have an account?
           <a href="/login" className="text-blue-600">
-            Đăng nhập
+            &nbsp; Login
           </a>
         </p>
       </form>
