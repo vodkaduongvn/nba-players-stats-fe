@@ -56,7 +56,14 @@ const Dashboard = () => {
 
     const fetchTeams = async () => {
       try {
-        const response = await api.get(`${baseUrl}/teams`);
+        // Get the browser's timezone offset in minutes.
+        // Note: getTimezoneOffset() returns the difference between UTC and local time in minutes.
+        // Example: UTC+7 returns -420. We send this value directly.
+        const timezoneOffsetMinutes = new Date().getTimezoneOffset();
+
+        const response = await api.get(`${baseUrl}/teams`, {
+          params: { timezoneOffsetMinutes }, // Send offset as query parameter
+        });
         setTeams(response.data.slice(0, 30));
       } catch (error) {
         console.error("Error fetching teams:", error);
@@ -117,7 +124,7 @@ const Dashboard = () => {
     return () => {
       connection.stop().then(() => console.log("SignalR connection stopped."));
     };
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user, setUser]); // Keep user and setUser in dependency array
 
   const handleLogout = () => {
     logout();
@@ -155,7 +162,11 @@ const Dashboard = () => {
   };
 
   const renderChart = (teamStats) => {
+    // Add null/undefined check for teamStats
+    if (!teamStats) return null;
     return teamStats.map((playerStats) => {
+      // Add null/undefined check for playerStats and pointsPerLast10Games
+      if (!playerStats || !playerStats.pointsPerLast10Games) return null;
       const data = {
         labels: playerStats.pointsPerLast10Games.map(
           (game) => new Date(game.gameDate + "Z").toLocaleDateString() // Append 'Z'
@@ -210,6 +221,8 @@ const Dashboard = () => {
               label: function (context) {
                 const game =
                   playerStats.pointsPerLast10Games[context.dataIndex];
+                // Add check for game object
+                if (!game) return "";
                 return [
                   `Points: ${context.raw}`,
                   `Win/Loss: ${game.winOrLoss}`,
@@ -236,6 +249,8 @@ const Dashboard = () => {
             ticks: {
               callback: function (val, index) {
                 const game = playerStats.pointsPerLast10Games[index];
+                // Add check for game object
+                if (!game) return "";
                 return `${new Date(
                   game.gameDate + "Z"
                 ).toLocaleDateString()} - ${
@@ -247,6 +262,8 @@ const Dashboard = () => {
               },
               color: function (context) {
                 const game = playerStats.pointsPerLast10Games[context.index];
+                // Add check for game object
+                if (!game) return "black"; // Default color
                 return game.winOrLoss === "Won" ? "green" : "red";
               },
             },
@@ -314,6 +331,8 @@ const Dashboard = () => {
           ticks: {
             callback: function (val, index) {
               const game = teamStats.scoreLastGames[index];
+              // Add check for game object
+              if (!game) return "";
               return `${new Date(game.gameDate + "Z").toLocaleDateString()} - ${
                 // Append 'Z'
                 game.winOrLose === "Won" ? "W" : "L"
@@ -321,6 +340,8 @@ const Dashboard = () => {
             },
             color: function (context) {
               const game = teamStats.scoreLastGames[context.index];
+              // Add check for game object
+              if (!game) return "black"; // Default color
               return game.winOrLose === "Won" ? "green" : "red";
             },
           },
@@ -446,7 +467,7 @@ const Dashboard = () => {
                     if (
                       !team.isClickable &&
                       user &&
-                      user.isDonated !== "False"
+                      user.isDonated === "False"
                     ) {
                       setShowDonatePopup(true);
                       return;
@@ -477,7 +498,7 @@ const Dashboard = () => {
                     </div>
                   )}
                   {/* Show Donate label if team is restricted and user is logged in but hasn't donated */}
-                  {!team.isClickable && user && user.isDonated !== "False" && (
+                  {!team.isClickable && user.isDonated === "False" && (
                     <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
                       Donate
                     </div>
