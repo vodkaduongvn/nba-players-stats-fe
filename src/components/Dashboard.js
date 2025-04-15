@@ -40,7 +40,7 @@ const Dashboard = () => {
   const [lastColumn, setLastColumn] = useState("left");
   const [selectedLeftTeamId, setSelectedLeftTeamId] = useState(null);
   const [selectedRightTeamId, setSelectedRightTeamId] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Manages loading state
   const [gameStats, setGameStats] = useState([]);
   const [leftTeamStatsLast10Games, setLeftTeamStatsLast10Games] = useState([]);
   const [rightTeamStatsLast10Games, setRightTeamStatsLast10Games] = useState(
@@ -56,13 +56,9 @@ const Dashboard = () => {
 
     const fetchTeams = async () => {
       try {
-        // Get the browser's timezone offset in minutes.
-        // Note: getTimezoneOffset() returns the difference between UTC and local time in minutes.
-        // Example: UTC+7 returns -420. We send this value directly.
         const timezoneOffsetMinutes = new Date().getTimezoneOffset();
-
         const response = await api.get(`${baseUrl}/teams`, {
-          params: { timezoneOffsetMinutes }, // Send offset as query parameter
+          params: { timezoneOffsetMinutes },
         });
         setTeams(response.data.slice(0, 30));
       } catch (error) {
@@ -84,23 +80,15 @@ const Dashboard = () => {
       setGameStats([newGameStats]);
     });
 
-    // Add listener for donation updates
     connection.on("ReceiveDonationUpdate", (updatedUserId) => {
       console.log("Received donation update for user ID:", updatedUserId);
-      // Check if the update is for the currently logged-in user
       if (user && user.id === updatedUserId) {
         console.log("Donation update matches current user. Updating state...");
-        // Close the popup if it's open
         setShowDonatePopup(false);
-
-        // Update user state in context and localStorage
-        const updatedUser = { ...user, isDonated: true }; // Create updated user object
-        setUser(updatedUser); // Update context state
-        localStorage.setItem("user", JSON.stringify(updatedUser)); // Update localStorage
-
+        const updatedUser = { ...user, isDonated: true };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
         toast.success("Donation successful! You now have full access.");
-        // Optionally: Re-fetch teams or update team clickability state if needed
-        // fetchTeams(); // Could re-fetch teams if their 'isClickable' depends on user donation status fetched from backend
       }
     });
 
@@ -124,15 +112,15 @@ const Dashboard = () => {
     return () => {
       connection.stop().then(() => console.log("SignalR connection stopped."));
     };
-  }, [isAuthenticated, navigate, user, setUser]); // Keep user and setUser in dependency array
+  }, [isAuthenticated, navigate, user, setUser]);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  // Fetches detailed player stats - loading state removed, handled by caller
   const fetchTeamStats = async (teamId, setStats, setSelectedTeamId) => {
-    setLoading(true);
     try {
       const response = await api.get(
         `${baseUrl}/Players/players-stats/${teamId}`
@@ -141,35 +129,114 @@ const Dashboard = () => {
       setSelectedTeamId(teamId);
     } catch (error) {
       console.error("Error fetching team stats:", error);
-    } finally {
-      setLoading(false);
+      // Re-throw or handle error appropriately if needed by caller
+      throw error; // Re-throwing allows the caller's catch block to handle it
     }
   };
 
-  const handleTeamClick = async (teamId) => {
-    if (loading) return;
-    const teamStats = await fetchTeamStatsLast10Games(teamId);
+  // Records the team click via API (fire-and-forget is okay here)
+  const recordTeamClick = async (teamAbbreviation) => {
+    if (!teamAbbreviation) {
+      console.warn(
+        "Attempted to record click for undefined team abbreviation."
+      );
+      return;
+    }
+    try {
+      await api.post(`${baseUrl}/teams/${teamAbbreviation}/click`); // Use correct path
+      console.log(`Click recorded for team: ${teamAbbreviation}`);
+    } catch (error) {
+      console.error(
+        `Error recording click for team ${teamAbbreviation}:`,
+        error
+      );
+    }
+  };
 
-    if (lastColumn === "left") {
-      setLeftTeamStatsLast10Games(teamStats);
-      fetchTeamStats(teamId, setLeftTeamStats, setSelectedLeftTeamId);
-      setLastColumn("right");
-    } else {
-      setRightTeamStatsLast10Games(teamStats);
-      fetchTeamStats(teamId, setRightTeamStats, setSelectedRightTeamId);
-      setLastColumn("left");
+  // Fetches summary stats for the last 10 games
+  const fetchTeamStatsLast10Games = async (teamId) => {
+    try {
+      // Use correct endpoint from TeamsController
+      const response = await api.get(`${baseUrl}/team-stats/${teamId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching team stats last 10 games:", error);
+      throw error; // Re-throwing allows the caller's catch block to handle it
+    }
+  };
+
+  // Handles the sequence of actions when a team is clicked, managing loading state
+  const handleTeamClick = async (teamId) => {
+    if (loading) {
+      console.log("handleTeamClick aborted: Already loading");
+      return;
+    }
+    console.log(
+      `handleTeamClick started for teamId: ${teamId}. Setting loading to true.`
+    );
+    setLoading(true); // Set loading state to true immediately
+    try {
+      // Fetch the stats for the last 10 games first
+      console.log(`Fetching last 10 games stats for teamId: ${teamId}...`);
+      const teamStatsLast10 = await fetchTeamStatsLast10Games(teamId);
+      console.log(
+        `Fetched last 10 games stats for teamId: ${teamId}`,
+        teamStatsLast10
+      );
+
+      // Determine which column (left or right) to update and fetch detailed player stats
+      if (lastColumn === "left") {
+        console.log(`Updating left column for teamId: ${teamId}`);
+        setLeftTeamStatsLast10Games(teamStatsLast10);
+        // Now fetch the detailed player stats for the left column, ensuring we wait
+        console.log(
+          `Fetching detailed stats for left column (teamId: ${teamId})...`
+        );
+        await fetchTeamStats(teamId, setLeftTeamStats, setSelectedLeftTeamId);
+        console.log(
+          `Fetched detailed stats for left column (teamId: ${teamId})`
+        );
+        setLastColumn("right"); // Switch the target column for the next click
+      } else {
+        console.log(`Updating right column for teamId: ${teamId}`);
+        setRightTeamStatsLast10Games(teamStatsLast10);
+        // Now fetch the detailed player stats for the right column, ensuring we wait
+        console.log(
+          `Fetching detailed stats for right column (teamId: ${teamId})...`
+        );
+        await fetchTeamStats(teamId, setRightTeamStats, setSelectedRightTeamId);
+        console.log(
+          `Fetched detailed stats for right column (teamId: ${teamId})`
+        );
+        setLastColumn("left"); // Switch the target column for the next click
+      }
+      console.log(
+        `handleTeamClick try block finished successfully for teamId: ${teamId}`
+      );
+    } catch (error) {
+      // Catch any errors from the awaited async operations
+      console.error(`Error in handleTeamClick for teamId: ${teamId}:`, error);
+      toast.error("Failed to load team data."); // Inform user
+    } finally {
+      // This block ALWAYS runs, ensuring loading is set to false
+      console.log(
+        `handleTeamClick finally block for teamId: ${teamId}. Setting loading to false soon.` // Log updated
+      );
+      // Delay setting loading to false slightly using setTimeout
+      setTimeout(() => {
+        console.log("setTimeout inside finally: Setting loading to false now."); // New log
+        setLoading(false);
+      }, 0); // 0ms delay pushes execution to the next event loop tick
     }
   };
 
   const renderChart = (teamStats) => {
-    // Add null/undefined check for teamStats
     if (!teamStats) return null;
     return teamStats.map((playerStats) => {
-      // Add null/undefined check for playerStats and pointsPerLast10Games
       if (!playerStats || !playerStats.pointsPerLast10Games) return null;
       const data = {
-        labels: playerStats.pointsPerLast10Games.map(
-          (game) => new Date(game.gameDate + "Z").toLocaleDateString() // Append 'Z'
+        labels: playerStats.pointsPerLast10Games.map((game) =>
+          new Date(game.gameDate + "Z").toLocaleDateString()
         ),
         datasets: [
           {
@@ -209,19 +276,13 @@ const Dashboard = () => {
       const options = {
         responsive: true,
         plugins: {
-          legend: {
-            display: true,
-          },
-          title: {
-            display: true,
-            text: playerStats.playerCode,
-          },
+          legend: { display: true },
+          title: { display: true, text: playerStats.playerCode },
           tooltip: {
             callbacks: {
               label: function (context) {
                 const game =
                   playerStats.pointsPerLast10Games[context.dataIndex];
-                // Add check for game object
                 if (!game) return "";
                 return [
                   `Points: ${context.raw}`,
@@ -249,12 +310,10 @@ const Dashboard = () => {
             ticks: {
               callback: function (val, index) {
                 const game = playerStats.pointsPerLast10Games[index];
-                // Add check for game object
                 if (!game) return "";
                 return `${new Date(
                   game.gameDate + "Z"
                 ).toLocaleDateString()} - ${
-                  // Append 'Z'
                   game.winOrLoss === "Won" ? "W" : "L"
                 } - ${game.teamScore} - ${game.oppTeamName} - ${
                   game.oppTeamScore
@@ -262,15 +321,13 @@ const Dashboard = () => {
               },
               color: function (context) {
                 const game = playerStats.pointsPerLast10Games[context.index];
-                // Add check for game object
-                if (!game) return "black"; // Default color
+                if (!game) return "black";
                 return game.winOrLoss === "Won" ? "green" : "red";
               },
             },
           },
         },
       };
-
       return (
         <div key={playerStats.playerCode}>
           <Line data={data} options={options} height={250} />
@@ -287,10 +344,9 @@ const Dashboard = () => {
     ) {
       return <p>No team stats available. Click a team to show stats.</p>;
     }
-
     const data = {
-      labels: teamStats.scoreLastGames.map(
-        (game) => new Date(game.gameDate + "Z").toLocaleDateString() // Append 'Z'
+      labels: teamStats.scoreLastGames.map((game) =>
+        new Date(game.gameDate + "Z").toLocaleDateString()
       ),
       datasets: [
         {
@@ -302,18 +358,12 @@ const Dashboard = () => {
         },
       ],
     };
-
     const average = teamStats.scoreAvg;
     const options = {
       responsive: true,
       plugins: {
-        legend: {
-          display: true,
-        },
-        title: {
-          display: true,
-          text: "Team Stats (Last 10 Games)",
-        },
+        legend: { display: true },
+        title: { display: true, text: "Team Stats (Last 10 Games)" },
         annotation: {
           annotations: {
             line1: {
@@ -331,35 +381,21 @@ const Dashboard = () => {
           ticks: {
             callback: function (val, index) {
               const game = teamStats.scoreLastGames[index];
-              // Add check for game object
               if (!game) return "";
               return `${new Date(game.gameDate + "Z").toLocaleDateString()} - ${
-                // Append 'Z'
                 game.winOrLose === "Won" ? "W" : "L"
               } - ${game.teamScore} - ${game.abbr} - ${game.abbrScore}`;
             },
             color: function (context) {
               const game = teamStats.scoreLastGames[context.index];
-              // Add check for game object
-              if (!game) return "black"; // Default color
+              if (!game) return "black";
               return game.winOrLose === "Won" ? "green" : "red";
             },
           },
         },
       },
     };
-
     return <Line data={data} options={options} height={250} />;
-  };
-
-  const fetchTeamStatsLast10Games = async (teamId) => {
-    try {
-      const response = await api.get(`${baseUrl}/team-stats/${teamId}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching team stats last 5 games:", error);
-      return [];
-    }
   };
 
   return (
@@ -369,11 +405,8 @@ const Dashboard = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
             <h2 className="text-2xl font-bold mb-2 text-center text-gray-800">
-              {" "}
-              {/* Reduced bottom margin */}
               Please Donate
             </h2>
-            {/* Add username display */}
             {user && (
               <p className="text-lg font-medium mb-4 text-center text-gray-700">
                 Hi, {user.email}!
@@ -400,7 +433,6 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-
       <header className="container-fluid bg-gray-800 p-4 flex justify-between items-center">
         <h1 className="text-white text-2xl font-bold">NBA Teams</h1>
         <div className="flex items-center space-x-4">
@@ -410,7 +442,7 @@ const Dashboard = () => {
                 Welcome, {user.email || "User"}!
               </span>
               <button
-                className="bg-orange-500 text-white px-4 py-2 rounded mr-2" // Added margin-right for spacing
+                className="bg-orange-500 text-white px-4 py-2 rounded mr-2"
                 onClick={() => setShowDonatePopup(true)}
               >
                 Donate
@@ -455,15 +487,10 @@ const Dashboard = () => {
                         team.id === selectedRightTeamId ||
                         loading
                       ? "cursor-pointer hover:bg-gray-200"
-                      : "cursor-pointer hover:bg-gray-200"
+                      : "cursor-pointer hover:bg-gray-200" // Simplified conditional class
                   }`}
                   onClick={() => {
-                    // Block access immediately if team is restricted AND user doesn't exist (or is loading)
-                    if ((!team.isClickable && !user) || loading) {
-                      return;
-                    }
-
-                    // If team is restricted AND user exists BUT hasn't donated, show popup and block click
+                    if ((!team.isClickable && !user) || loading) return;
                     if (
                       !team.isClickable &&
                       user &&
@@ -472,16 +499,19 @@ const Dashboard = () => {
                       setShowDonatePopup(true);
                       return;
                     }
-
-                    // If we reach here, it means either:
-                    // 1. The team is clickable (team.isClickable is true)
-                    // 2. The team is restricted BUT the user HAS donated (user.isDonated is true)
-                    // In both cases, allow the click if the team isn't already selected.
                     if (
                       team.id !== selectedLeftTeamId &&
                       team.id !== selectedRightTeamId
                     ) {
-                      handleTeamClick(team.id);
+                      console.log(
+                        `onClick: Conditions met for teamId: ${team.id}. Calling recordTeamClick and handleTeamClick...`
+                      ); // Thêm log ở đây
+                      recordTeamClick(team.abbr); // Record click
+                      handleTeamClick(team.id); // Fetch data, manage loading
+                    } else {
+                      console.log(
+                        `onClick: Conditions NOT met or team already selected for teamId: ${team.id}`
+                      ); // Log trường hợp không gọi handleTeamClick
                     }
                   }}
                   style={{
@@ -497,15 +527,14 @@ const Dashboard = () => {
                       Register
                     </div>
                   )}
-                  {/* Show Donate label if team is restricted and user is logged in but hasn't donated */}
-                  {!team.isClickable && user.isDonated === "False" && (
-                    <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
-                      Donate
-                    </div>
-                  )}
+                  {!team.isClickable &&
+                    user?.isDonated === "False" && ( // Added optional chaining for user
+                      <div className="absolute top-0 left-0 bg-orange-500 text-white text-xs px-2 py-1 rounded-tl">
+                        Donate
+                      </div>
+                    )}
 
-                  {gameStats[0]?.teamInfo &&
-                  gameStats[0].teamInfo.filter(
+                  {gameStats[0]?.teamInfo?.filter(
                     (info) => info.abbr === team.abbr
                   ).length > 0 ? (
                     gameStats[0].teamInfo
@@ -517,7 +546,7 @@ const Dashboard = () => {
                               <p className="game-date-title">
                                 Top 1 player in game on
                                 <br />
-                                {new Date( // Append 'Z'
+                                {new Date(
                                   gameStats[0].gameDate + "Z"
                                 ).toLocaleDateString()}
                               </p>
@@ -566,14 +595,11 @@ const Dashboard = () => {
             style={{ width: "520px" }}
           >
             <h2 className="text-xl font-bold mb-4">
-              {leftTeamStats != null && leftTeamStats[0] != null
-                ? leftTeamStats[0].teamName
-                : ""}
+              {leftTeamStats?.[0]?.teamName || ""}
             </h2>
             {leftTeamStats ? (
               <div>
                 {renderTeamChart(leftTeamStatsLast10Games)}
-
                 {renderChart(leftTeamStats)}
               </div>
             ) : (
@@ -586,14 +612,11 @@ const Dashboard = () => {
             style={{ width: "520px" }}
           >
             <h2 className="text-xl font-bold mb-4">
-              {rightTeamStats != null && rightTeamStats[0] != null
-                ? rightTeamStats[0].teamName
-                : ""}
+              {rightTeamStats?.[0]?.teamName || ""}
             </h2>
             {rightTeamStats ? (
               <div>
                 {renderTeamChart(rightTeamStatsLast10Games)}
-
                 {renderChart(rightTeamStats)}
               </div>
             ) : (
@@ -619,11 +642,15 @@ const Dashboard = () => {
           </a>
         </p>
       </footer>
-      {loading && (
+      {/* Log giá trị loading ngay trước khi render overlay */}
+      {console.log("Rendering component, loading state is:", loading)}
+      {/* Thay đổi cách render để tường minh hơn */}
+      {loading ? (
         <div className="loader-overlay">
           <div className="loader"></div>
         </div>
-      )}
+      ) : null}
+      {/* Đã xóa dấu )} bị thừa */}
     </>
   );
 };
