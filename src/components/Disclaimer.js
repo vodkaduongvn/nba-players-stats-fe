@@ -13,9 +13,9 @@ const Disclaimer = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <p className="text-gray-700 mb-4">
-            nbastatspro.com does not host, upload, or control any data or
-            information. The information and data you see here are shared by
-            sports fans worldwide or directly from the nba.com website.
+            nbastatspro.com does not control any data or information. The
+            information and data you see here are shared by sports fans
+            worldwide or directly from the nba.com website.
           </p>
           <p className="text-gray-700 mb-6">
             We only act as an intermediary to facilitate your search and will
@@ -28,15 +28,14 @@ const Disclaimer = () => {
             Miễn trừ trách nhiệm
           </h3>
           <p className="text-gray-700 mb-4">
-            nbastatspro.com không lưu trữ, tải lên hoặc kiểm soát bất kỳ dữ liệu
-            hay thông tin nào. Các thông tin và dữ liệu bạn thấy tại đây được
-            chia sẻ bởi các fan thể thao trên toàn thế giới hoặc trực tiếp tại
-            website nba.com.
+            nbastatspro.com không kiểm soát bất kỳ dữ liệu hay thông tin nào.
+            Các thông tin và dữ liệu bạn thấy tại đây được chia sẻ bởi các fan
+            thể thao trên toàn thế giới hoặc trực tiếp tại website nba.com.
           </p>
           <p className="text-gray-700 mb-6">
             Chúng tôi chỉ đóng vai trò trung gian giúp bạn tìm kiếm dễ dàng hơn
             và sẽ không chịu trách nhiệm về bất kì vi phạm nào cũng như việc bạn
-            sử dụng các data này ra sao.
+            sử dụng các dữ liệu này ra sao.
           </p>
 
           <div className="mt-8 text-center">
