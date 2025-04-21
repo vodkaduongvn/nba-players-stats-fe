@@ -46,7 +46,8 @@ const Dashboard = () => {
   const [rightTeamStatsLast10Games, setRightTeamStatsLast10Games] = useState(
     []
   );
-  const baseUrl = "http://localhost:5087";
+  // Use environment variable for API URL, fallback to localhost for local dev
+  const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5087";
 
   useEffect(() => {
     console.log(isAuthenticated);
