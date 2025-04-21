@@ -33,6 +33,7 @@ jobs:
         working-directory: ${{ github.workspace }} # Chạy trong thư mục gốc checkout
         env: # Đặt biến môi trường cho bước build
           REACT_APP_API_URL: 'https://app-nbastats-backend.azurewebsites.net'
+          CI: false
       
       - name: Build And Deploy
         id: builddeploy
