@@ -23,6 +23,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
+          
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ${{ github.workspace }} # Chạy trong thư mục gốc checkout
+
+      - name: Build Application
+        run: npm run build
+        working-directory: ${{ github.workspace }} # Chạy trong thư mục gốc checkout
+        env: # Đặt biến môi trường cho bước build
+          REACT_APP_API_URL: 'https://app-nbastats-backend.azurewebsites.net'
+      
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -36,8 +47,8 @@ jobs:
           api_location: "" # Api source code path - optional
           output_location: "build" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
-        env:
-          REACT_APP_API_URL: 'https://app-nbastats-backend.azurewebsites.net' #
+          skip_app_build: 'true'
+        
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
