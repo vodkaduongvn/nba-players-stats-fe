@@ -1,14 +1,14 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom"; // Removed unused import
 import { AuthContext } from "../services/AuthContext"; // Import AuthContext
-import api from "../services/axiosConfig.js"; // Import file cấu hình Axios
+// import api from "../services/axiosConfig.js"; // Removed unused import
 import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useContext(AuthContext); // Lấy hàm login từ AuthContext
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Removed unused variable
 
   const handleLogin = async (e) => {
     e.preventDefault();

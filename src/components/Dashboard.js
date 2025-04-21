@@ -17,7 +17,7 @@ import {
 import AnnotationPlugin from "chartjs-plugin-annotation";
 import * as signalR from "@microsoft/signalr";
 import { AuthContext } from "../services/AuthContext";
-import { ToastContainer } from "react-toastify";
+// import { ToastContainer } from "react-toastify"; // Removed unused import
 
 ChartJS.register(
   LineElement,
@@ -113,7 +113,8 @@ const Dashboard = () => {
     return () => {
       connection.stop().then(() => console.log("SignalR connection stopped."));
     };
-  }, [isAuthenticated, navigate, user, setUser]);
+    // Added baseUrl to dependency array as required by ESLint
+  }, [isAuthenticated, navigate, user, setUser, baseUrl]);
 
   const handleLogout = () => {
     logout();
