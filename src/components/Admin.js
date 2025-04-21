@@ -16,7 +16,8 @@ const Admin = () => {
   const [searchError, setSearchError] = useState("");
   const [activeUsersCount, setActiveUsersCount] = useState(null); // State for active users
 
-  const baseUrl = "http://localhost:5087"; // Ensure this matches your backend URL
+  // Use environment variable for API URL, fallback to localhost for local dev
+  const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5087";
 
   // Effect for Authentication and Role Check (existing)
   useEffect(() => {
