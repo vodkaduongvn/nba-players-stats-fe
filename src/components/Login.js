@@ -3,17 +3,21 @@ import React, { useState, useContext } from "react";
 import { AuthContext } from "../services/AuthContext"; // Import AuthContext
 // import api from "../services/axiosConfig.js"; // Removed unused import
 import { toast } from "react-toastify";
+// import { FiRefreshCw } from "react-icons/fi"; // Removed refresh icon import
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useContext(AuthContext); // Lấy hàm login từ AuthContext
   // const navigate = useNavigate(); // Removed unused variable
 
+  // Removed Generator Functions and Handlers
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const userData = await login(email, password);
+      // Use usernameOrEmail state for login
+      const userData = await login(usernameOrEmail, password);
       console.log(userData);
       // Check isDonated status and navigate accordingly
       // if (userData && userData.isDonated) {
@@ -51,21 +55,23 @@ const Login = () => {
         className="bg-white p-8 rounded shadow-md w-96"
       >
         <h2 className="text-xl font-bold mb-4">Login</h2>
+        {/* Simple Username/Email Input */}
         <input
-          type="email"
-          placeholder="Email"
-          className="w-full mb-4 p-2 border"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyDown} // Add onKeyDown handler
+          type="text"
+          placeholder="Username or Email"
+          className="w-full mb-4 p-2 border rounded" // Reverted to full width
+          value={usernameOrEmail}
+          onChange={(e) => setUsernameOrEmail(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
+        {/* Simple Password Input */}
         <input
           type="password"
           placeholder="Password"
-          className="w-full mb-4 p-2 border"
+          className="w-full mb-4 p-2 border rounded" // Reverted to full width
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={handleKeyDown} // Add onKeyDown handler
+          onKeyDown={handleKeyDown}
         />
         <button
           type="submit"

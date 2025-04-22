@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../services/AuthContext"; // Import AuthContext
 import api from "../services/axiosConfig.js"; // Import file cấu hình Axios
+import { FiRefreshCw, FiCopy } from "react-icons/fi"; // Import icons
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -10,12 +11,64 @@ const Register = () => {
   const { login } = useContext(AuthContext); // Get login function from context
   const navigate = useNavigate();
 
+  // --- Generator & Copy Functions ---
+  const generatePassword = () => {
+    const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < 8; i++) {
+      result += characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+    }
+    return result;
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        toast.success("Copied to clipboard!", { autoClose: 1000 });
+      })
+      .catch((err) => {
+        toast.error("Failed to copy!");
+        console.error("Failed to copy text: ", err);
+      });
+  };
+
+  const handleGeneratePassword = () => {
+    const newPassword = generatePassword();
+    setPassword(newPassword);
+    // Removed setting confirmPassword state
+  };
+
+  const handleCopyEmail = () => {
+    copyToClipboard(email);
+  };
+
+  const handleCopyPassword = () => {
+    copyToClipboard(password);
+  };
+
+  // --- Generator Function for Username ---
+  const generateUsername = () => {
+    // Generates a 9-digit random number as a string
+    return Math.floor(100000000 + Math.random() * 900000000).toString();
+  };
+  const handleGenerateUsername = () => {
+    setEmail(generateUsername()); // Set the generated username to the email state field
+  };
+  // --- End Functions ---
+
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
+      // Password confirmation check removed here
+
       const response = await api.post("api/Auth/register", {
-        email,
+        email, // Sending the value from the first input (which might be email or generated username)
         password,
+        // Backend might expect ConfirmPassword, adjust if needed based on RegisterModel.cs
+        // confirmPassword: confirmPassword
       });
       console.log("res:", response);
       console.log("status", response.status);
@@ -72,22 +125,65 @@ const Register = () => {
         className="bg-white p-8 rounded shadow-md w-96"
       >
         <h2 className="text-xl font-bold mb-4">Register</h2>
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full mb-4 p-2 border"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyDown} // Add onKeyDown handler
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full mb-4 p-2 border"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={handleKeyDown} // Add onKeyDown handler
-        />
+
+        {/* Email/Username Input with Refresh and Copy Buttons */}
+        <div className="mb-4 flex items-center space-x-2">
+          <input
+            type="text" // Changed type
+            placeholder="Email or Username" // Changed placeholder
+            className="flex-grow p-2 border rounded"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)} // Still uses setEmail
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            type="button"
+            onClick={handleGenerateUsername} // Added Refresh handler
+            className="p-2 text-gray-600 hover:text-blue-500"
+            title="Generate Username"
+          >
+            <FiRefreshCw size={20} />
+          </button>
+          <button
+            type="button"
+            onClick={handleCopyEmail} // Kept Copy handler
+            className="p-2 text-gray-600 hover:text-blue-500"
+            title="Copy Email"
+          >
+            <FiCopy size={20} />
+          </button>
+        </div>
+
+        {/* Password Input with Refresh and Copy Buttons */}
+        <div className="mb-4 flex items-center space-x-2">
+          <input
+            type="text"
+            placeholder="Password"
+            className="flex-grow p-2 border rounded"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            type="button"
+            onClick={handleGeneratePassword}
+            className="p-2 text-gray-600 hover:text-blue-500"
+            title="Generate Password"
+          >
+            <FiRefreshCw size={20} />
+          </button>
+          <button
+            type="button"
+            onClick={handleCopyPassword}
+            className="p-2 text-gray-600 hover:text-blue-500"
+            title="Copy Password"
+          >
+            <FiCopy size={20} />
+          </button>
+        </div>
+
+        {/* Confirm Password Input - Removed */}
+
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded"
