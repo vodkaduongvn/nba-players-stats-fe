@@ -65,10 +65,10 @@ const Register = () => {
       // Password confirmation check removed here
 
       const response = await api.post("api/Auth/register", {
-        email, // Sending the value from the first input (which might be email or generated username)
+        // Send the value using the key expected by the backend model
+        UsernameOrEmail: email,
         password,
-        // Backend might expect ConfirmPassword, adjust if needed based on RegisterModel.cs
-        // confirmPassword: confirmPassword
+        // Backend doesn't expect ConfirmPassword based on RegisterModel anymore
       });
       console.log("res:", response);
       console.log("status", response.status);

@@ -441,7 +441,8 @@ const Dashboard = () => {
           {isAuthenticated ? (
             <>
               <span className="text-white font-medium">
-                Welcome, {user.email || "User"}!
+                {/* Display email if available, otherwise display name (username), fallback to "User" */}
+                Welcome, {user?.email || user?.name || "User"}!
               </span>
               <button
                 className="bg-orange-500 text-white px-4 py-2 rounded mr-2"

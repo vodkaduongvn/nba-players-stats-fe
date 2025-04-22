@@ -39,11 +39,12 @@ export const AuthContextProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (usernameOrEmail, password) => {
+    // Changed parameter name
     try {
-      // Correct the API endpoint to match the conventional routing (/api/Auth/login)
+      // Correct the API endpoint and payload key
       const response = await axiosInstance.post("/api/Auth/login", {
-        email,
+        usernameOrEmail: usernameOrEmail, // Send with the correct key
         password,
       });
 
