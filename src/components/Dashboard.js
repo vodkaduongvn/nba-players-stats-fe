@@ -411,7 +411,7 @@ const Dashboard = () => {
             </h2>
             {user && (
               <p className="text-lg font-medium mb-4 text-center text-gray-700">
-                Hi, {user.email}!
+                Hi, {user?.email || user?.name}!
               </p>
             )}
             <p className="text-gray-600 mb-6 text-center">

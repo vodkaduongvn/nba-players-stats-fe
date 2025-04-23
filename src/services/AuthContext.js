@@ -56,9 +56,15 @@ export const AuthContextProvider = ({ children }) => {
         decodedToken[
           "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         ];
+      // Explicitly extract the username claim
+      const usernameClaim =
+        decodedToken[
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+        ];
       const fullUserData = {
         ...apiUserData, // { id, email, isDonated }
         ...decodedToken, // Add other claims like exp, nameidentifier, etc.
+        name: usernameClaim, // Add the username under the 'name' property
         role: roleClaim, // Explicitly add role property
       };
 
