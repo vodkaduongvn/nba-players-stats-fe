@@ -126,17 +126,17 @@ const Dashboard = () => {
   // Function to handle copying text to clipboard
   const handleCopyContent = (textToCopy) => {
     if (!textToCopy) {
-      toast.error("Không có nội dung để sao chép."); // No content to copy
+      toast.error("No content to copy."); // No content to copy
       return;
     }
     navigator.clipboard
       .writeText(textToCopy)
       .then(() => {
-        toast.success("Đã sao chép!"); // Copied!
+        toast.success("Copied!"); // Copied!
       })
       .catch((err) => {
-        console.error("Lỗi sao chép:", err); // Copy error
-        toast.error("Không thể sao chép."); // Failed to copy
+        console.error("Copy error:", err); // Copy error
+        toast.error("Unable copy."); // Failed to copy
       });
   };
 
@@ -465,8 +465,25 @@ const Dashboard = () => {
                   <FaCopy /> {/* Use the icon component */}
                 </button>
               </div>{" "}
-              {/* Corrected closing tag */}
-              <div className="flex justify-center space-x-4">
+              <div
+                className="text-gray-600 mb-6 italic flex items-center justify-center"
+                style={{ fontSize: "14px" }}
+              >
+                <span>
+                  {" "}
+                  {/* Centered, reduced margin */}
+                  Hoặc gửi về:{" "}
+                  <a
+                    href="mailto:nbastatschart@gmail.com"
+                    className="text-blue-500 hover:underline"
+                  >
+                    nbastatschart@gmail.com
+                  </a>
+                </span>
+              </div>
+              <div className="flex justify-center space-x-4 mt-4">
+                {" "}
+                {/* Added margin top to separate from contact */}
                 <button
                   onClick={() => setShowDonatePopup(false)}
                   className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors"
