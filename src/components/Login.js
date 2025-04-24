@@ -49,12 +49,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-200">
+    // Moved padding classes here and removed the invalid comment syntax
+    <div className="min-h-screen flex items-center justify-center bg-gray-200 px-4 sm:px-6 lg:px-8">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-8 rounded shadow-md w-96"
+        className="bg-white p-8 rounded shadow-md w-full max-w-sm" // Applied responsive width
       >
-        <h2 className="text-xl font-bold mb-4">Login</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>{" "}
+        {/* Centered and styled heading */}
         {/* Simple Username/Email Input */}
         <input
           type="text"

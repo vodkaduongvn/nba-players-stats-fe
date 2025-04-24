@@ -530,21 +530,27 @@ const Dashboard = () => {
         </div>
       </header>
       <hr style={{ border: "1px solid #c0c0c0" }}></hr>
-      <div className="container mx-auto p-4" style={{ display: "flex" }}>
-        <div>
-          <ul className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
+      {/* Updated container for responsive layout - Added lg:space-x-4 */}
+      <div className="container mx-auto p-4 flex flex-col lg:flex-row lg:space-x-4">
+        {/* Team List Area - Adjusted width on lg (1/3) */}
+        <div className="lg:w-1/3 flex-shrink-0 mb-8 lg:mb-0">
+          {" "}
+          {/* Use lg:w-1/3 */}
+          {/* Adjusted grid for smaller screens */}
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {Array.isArray(teams) &&
               teams.map((team) => (
                 <li
                   key={team.id}
                   className={`p-2 bg-gray-100 rounded shadow ${
+                    // Consolidated className here
                     !team.isClickable && !user
                       ? "cursor-not-allowed"
                       : team.id === selectedLeftTeamId ||
                         team.id === selectedRightTeamId ||
                         loading
                       ? "cursor-pointer hover:bg-gray-200"
-                      : "cursor-pointer hover:bg-gray-200" // Simplified conditional class
+                      : "cursor-pointer hover:bg-gray-200"
                   }`}
                   onClick={() => {
                     if ((!team.isClickable && !user) || loading) return;
@@ -562,17 +568,17 @@ const Dashboard = () => {
                     ) {
                       console.log(
                         `onClick: Conditions met for teamId: ${team.id}. Calling recordTeamClick and handleTeamClick...`
-                      ); // Thêm log ở đây
-                      recordTeamClick(team.abbr); // Record click
-                      handleTeamClick(team.id); // Fetch data, manage loading
+                      );
+                      recordTeamClick(team.abbr);
+                      handleTeamClick(team.id);
                     } else {
                       console.log(
                         `onClick: Conditions NOT met or team already selected for teamId: ${team.id}`
-                      ); // Log trường hợp không gọi handleTeamClick
+                      );
                     }
                   }}
+                  // Removed fixed width from style
                   style={{
-                    width: "200px",
                     height: "100px",
                     textAlign: "center",
                     display: "flex",
@@ -646,11 +652,14 @@ const Dashboard = () => {
           </ul>
         </div>
 
-        <div className="grid grid-cols-2 gap-4" style={{ marginLeft: "20px" }}>
+        {/* Stats Area - Adjusted for responsiveness */}
+        <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {" "}
+          {/* Use lg:w-2/3 */}
           {/* Left stats */}
           <div
-            className="bg-gray-100 p-4 rounded-xl shadow-md"
-            style={{ width: "520px" }}
+            className="bg-gray-100 p-4 rounded-xl shadow-md w-full" // Added w-full
+            // style={{ width: "520px" }} // Removed fixed width style
           >
             <h2 className="text-xl font-bold mb-4">
               {leftTeamStats?.[0]?.teamName || ""}
@@ -668,8 +677,8 @@ const Dashboard = () => {
           </div>
           {/* Right stats */}
           <div
-            className="bg-gray-100 p-4 rounded-xl shadow-md"
-            style={{ width: "520px" }}
+            className="bg-gray-100 p-4 rounded-xl shadow-md w-full" // Added w-full
+            // style={{ width: "520px" }} // Removed fixed width style
           >
             <h2 className="text-xl font-bold mb-4">
               {rightTeamStats?.[0]?.teamName || ""}

@@ -119,13 +119,14 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-200">
+    // Added padding for smaller screens
+    <div className="min-h-screen flex items-center justify-center bg-gray-200 px-4 sm:px-6 lg:px-8">
       <form
         onSubmit={handleRegister}
-        className="bg-white p-8 rounded shadow-md w-96"
+        className="bg-white p-8 rounded shadow-md w-full max-w-sm" // Responsive width
       >
-        <h2 className="text-xl font-bold mb-4">Register</h2>
-
+        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>{" "}
+        {/* Centered and styled heading */}
         {/* Email/Username Input with Refresh and Copy Buttons */}
         <div className="mb-4 flex items-center space-x-2">
           <input
@@ -153,7 +154,6 @@ const Register = () => {
             <FiCopy size={20} />
           </button>
         </div>
-
         {/* Password Input with Refresh and Copy Buttons */}
         <div className="mb-4 flex items-center space-x-2">
           <input
@@ -181,9 +181,7 @@ const Register = () => {
             <FiCopy size={20} />
           </button>
         </div>
-
         {/* Confirm Password Input - Removed */}
-
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded"
