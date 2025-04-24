@@ -17,6 +17,8 @@ import {
 import AnnotationPlugin from "chartjs-plugin-annotation";
 import * as signalR from "@microsoft/signalr";
 import { AuthContext } from "../services/AuthContext";
+import qrCodeImage from "../VBBank_QR.JPG"; // Import the QR code image
+import { FaCopy } from "react-icons/fa"; // Import the copy icon
 // import { ToastContainer } from "react-toastify"; // Removed unused import
 
 ChartJS.register(
@@ -119,6 +121,23 @@ const Dashboard = () => {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  // Function to handle copying text to clipboard
+  const handleCopyContent = (textToCopy) => {
+    if (!textToCopy) {
+      toast.error("Không có nội dung để sao chép."); // No content to copy
+      return;
+    }
+    navigator.clipboard
+      .writeText(textToCopy)
+      .then(() => {
+        toast.success("Đã sao chép!"); // Copied!
+      })
+      .catch((err) => {
+        console.error("Lỗi sao chép:", err); // Copy error
+        toast.error("Không thể sao chép."); // Failed to copy
+      });
   };
 
   // Fetches detailed player stats - loading state removed, handled by caller
@@ -405,32 +424,65 @@ const Dashboard = () => {
       {/* Donate Popup */}
       {showDonatePopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold mb-2 text-center text-gray-800">
-              Please Donate
-            </h2>
-            {user && (
-              <p className="text-lg font-medium mb-4 text-center text-gray-700">
-                Hi, {user?.email || user?.name}!
+          {/* Increased max-w for wider popup */}
+          <div className="bg-white p-8 rounded-lg shadow-xl max-w-xl w-full mx-4 flex items-center space-x-6">
+            {/* Content on the left */}
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold mb-2 text-center text-gray-800">
+                Please Donate
+              </h2>
+              {user && (
+                <p className="text-lg font-medium mb-4 text-center text-gray-700">
+                  Hi, {user?.email || user?.name}!
+                </p>
+              )}
+              <p className="text-gray-600 mb-6 text-center">
+                To access detailed team statistics and player analysis, please
+                support us with a donation.
               </p>
-            )}
-            <p className="text-gray-600 mb-6 text-center">
-              To access detailed team statistics and player analysis, please
-              support us with a donation.
-            </p>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={() => navigate("/donation")}
-                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors"
+              <p
+                className="text-gray-600 mb-6 text-center italic"
+                style={{ fontSize: "14px" }}
               >
-                Donate Now
-              </button>
-              <button
-                onClick={() => setShowDonatePopup(false)}
-                className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors"
+                Để truy cập số liệu thống kê chi tiết, vui lòng hỗ trợ chúng tôi
+                bằng cách quyên góp.
+              </p>
+              {/* Changed p tag to div and applied flex for inline alignment */}
+              <div
+                className="text-gray-600 mb-6 italic flex items-center justify-center"
+                style={{ fontSize: "14px" }}
               >
-                Close
-              </button>
+                <span>Nội dung ghi:&nbsp;</span>{" "}
+                {/* Added non-breaking space */}
+                <span className="font-semibold">
+                  {user?.email || user?.name}
+                </span>
+                <button
+                  onClick={() => handleCopyContent(user?.email || user?.name)}
+                  className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
+                  title="Sao chép nội dung" // Tooltip: Copy content
+                >
+                  <FaCopy /> {/* Use the icon component */}
+                </button>
+              </div>{" "}
+              {/* Corrected closing tag */}
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={() => setShowDonatePopup(false)}
+                  className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            {/* QR Code Image on the right */}
+            <div className="flex-shrink-0">
+              <img
+                src={qrCodeImage}
+                alt="Donate QR Code"
+                className="w-40 h-40 object-contain"
+              />{" "}
+              {/* Adjust size as needed */}
             </div>
           </div>
         </div>
