@@ -465,32 +465,17 @@ const Dashboard = () => {
                   <FaCopy /> {/* Use the icon component */}
                 </button>
               </div>{" "}
-              <div
-                className="text-gray-600 mb-6 italic flex items-center justify-center"
-                style={{ fontSize: "14px" }}
-              >
-                <span>
-                  {" "}
-                  {/* Centered, reduced margin */}
-                  Hoặc gửi về:{" "}
-                  <a
-                    href="mailto:nbastatschart@gmail.com"
-                    className="text-blue-500 hover:underline"
-                  >
-                    nbastatschart@gmail.com
-                  </a>
-                </span>
-              </div>
+              {/* Corrected closing tag */}
+              {/* Contact Info REMOVED from here */}
               <div className="flex justify-center space-x-4 mt-4">
-                {" "}
-                {/* Added margin top to separate from contact */}
                 <button
                   onClick={() => setShowDonatePopup(false)}
-                  className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors"
+                  className="bg-gray-300 mb-4 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors"
                 >
                   Close
                 </button>
               </div>
+              {/* Removed the <p> tag for contact info from here */}
             </div>
             {/* QR Code Image on the right */}
             <div className="flex-shrink-0">
@@ -703,7 +688,7 @@ const Dashboard = () => {
         </div>
       </div>
       <hr style={{ border: "1px solid #c0c0c0" }}></hr>
-      {/* Sửa lỗi: Gộp className và xóa style không cần thiết */}
+      {/* Footer Updated */}
       <footer className="container-fluid bg-gray-800 mx-auto p-4 mt-8 text-white text-center">
         {/* Chart Color Legend */}
         <div className="mb-4 text-xs">
@@ -726,7 +711,7 @@ const Dashboard = () => {
           </span>
         </div>
 
-        {/* Existing links and Disclaimer */}
+        {/* Existing links, Disclaimer, and Added Contact Info */}
         <p className="text-sm">
           {" "}
           {/* Changed size for consistency */}
@@ -734,7 +719,7 @@ const Dashboard = () => {
           <a
             href="https://www.nba.com"
             target="_blank"
-            className="text-blue-400"
+            className="text-blue-400 hover:underline"
             rel="noreferrer"
           >
             NBA.com
@@ -743,6 +728,19 @@ const Dashboard = () => {
           <Link to="/disclaimer" className="text-blue-400 hover:underline">
             Disclaimer
           </Link>
+          {/* Added Contact Info */}
+          <span className="mx-2">|</span> {/* Separator */}
+          <span className="text-gray-400 text-xs">
+            {" "}
+            {/* Adjusted style */}
+            Contact us:{" "}
+            <a
+              href="mailto:nbastatschart@gmail.com"
+              className="text-blue-400 hover:underline"
+            >
+              nbastatschart@gmail.com
+            </a>
+          </span>
         </p>
       </footer>
       {/* Log giá trị loading ngay trước khi render overlay */}
