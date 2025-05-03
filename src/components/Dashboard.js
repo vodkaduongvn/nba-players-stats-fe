@@ -305,8 +305,29 @@ const Dashboard = () => {
                 const game =
                   playerStats.pointsPerLast10Games[context.dataIndex];
                 if (!game) return "";
+
+                let labelPrefix = "";
+                // Determine the label prefix based on the dataset index
+                switch (context.datasetIndex) {
+                  case 0: // Index of the 'Minutes' dataset
+                    labelPrefix = "Minutes:";
+                    break;
+                  case 1: // Index of the 'Points' dataset
+                    labelPrefix = "Points:";
+                    break;
+                  case 2: // Index of the 'Rebounds' dataset
+                    labelPrefix = "Rebounds:";
+                    break;
+                  case 3: // Index of the 'Assists' dataset
+                    labelPrefix = "Assists:";
+                    break;
+                  default:
+                    labelPrefix = "Value:"; // Fallback
+                }
+
+                // Construct the tooltip lines with the correct label
                 return [
-                  `Points: ${context.raw}`,
+                  `${labelPrefix} ${context.raw}`,
                   `Win/Loss: ${game.winOrLoss}`,
                   `Team Score: ${game.teamScore}`,
                   `Opponent: ${game.oppTeamName}`,
