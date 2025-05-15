@@ -255,28 +255,79 @@ const Dashboard = () => {
     if (!teamStats) return null;
     return teamStats.map((playerStats) => {
       if (!playerStats || !playerStats.pointsPerLast10Games) return null;
+
+      const originalLabels = playerStats.pointsPerLast10Games.map((game) =>
+        new Date(game.gameDate + "Z").toLocaleDateString()
+      );
+      const originalPointsData = playerStats.pointsPerLast10Games.map(
+        (game) => game.points
+      );
+      const originalMinutesData = playerStats.pointsPerLast10Games.map(
+        (game) => game.mins
+      );
+      const originalReboundsData = playerStats.pointsPerLast10Games.map(
+        (game) => game.rebounds
+      );
+      const originalAssistsData = playerStats.pointsPerLast10Games.map(
+        (game) => game.assists
+      );
+      const originalEfficiencyData = playerStats.pointsPerLast10Games.map(
+        (game) => game.efficiency
+      );
+
+      const hasPrediction =
+        playerStats.predictedNextScore !== null &&
+        playerStats.predictedNextScore !== undefined;
+
+      const chartLabels = [...originalLabels];
+      const pointsData = [...originalPointsData];
+      const minutesData = [...originalMinutesData];
+      const reboundsData = [...originalReboundsData];
+      const assistsData = [...originalAssistsData];
+      const efficiencyData = [...originalEfficiencyData];
+
+      if (hasPrediction) {
+        chartLabels.push("Trận tới (DĐ)"); // DĐ = Dự Đoán
+        pointsData.push(playerStats.predictedNextScore);
+        minutesData.push(null);
+        reboundsData.push(null);
+        assistsData.push(null);
+        efficiencyData.push(null);
+      }
+
       const data = {
-        labels: playerStats.pointsPerLast10Games.map((game) =>
-          new Date(game.gameDate + "Z").toLocaleDateString()
-        ),
+        labels: chartLabels,
         datasets: [
           {
             label: "Minutes (Avg: " + playerStats.mins + ")",
-            data: playerStats.pointsPerLast10Games.map((game) => game.mins),
+            data: minutesData,
             borderColor: "red",
             backgroundColor: "red",
             fill: false,
           },
           {
             label: "Points (Avg: " + playerStats.pointsAvg + ")",
-            data: playerStats.pointsPerLast10Games.map((game) => game.points),
+            data: pointsData,
             borderColor: "green",
             backgroundColor: "green",
             fill: false,
+            pointRadius: pointsData.map((val, index) =>
+              hasPrediction && index === pointsData.length - 1 ? 6 : 3
+            ),
+            pointBackgroundColor: pointsData.map((val, index) =>
+              hasPrediction && index === pointsData.length - 1
+                ? "orange"
+                : "green"
+            ),
+            pointBorderColor: pointsData.map((val, index) =>
+              hasPrediction && index === pointsData.length - 1
+                ? "darkred"
+                : "green"
+            ),
           },
           {
             label: `Rebounds (Avg: ${playerStats.reboundsAvg})`,
-            data: playerStats.pointsPerLast10Games.map((game) => game.rebounds),
+            data: reboundsData,
             borderColor: "blue",
             backgroundColor: "blue",
             fill: false,
@@ -284,11 +335,19 @@ const Dashboard = () => {
           },
           {
             label: `Assists (Avg: ${playerStats.assistsAvg})`,
-            data: playerStats.pointsPerLast10Games.map((game) => game.assists),
+            data: assistsData,
             borderColor: "orange",
             backgroundColor: "orange",
             fill: false,
             hidden: true,
+          },
+          {
+            label: `Efficiency (Avg: ${playerStats.efficiencyAvg || "N/A"})`,
+            data: efficiencyData,
+            borderColor: "purple",
+            backgroundColor: "purple",
+            fill: false,
+            hidden: true, // Keep this visible as per original
           },
         ],
       };
@@ -302,30 +361,56 @@ const Dashboard = () => {
           tooltip: {
             callbacks: {
               label: function (context) {
+                const isPredictedPoint =
+                  hasPrediction && context.dataIndex === pointsData.length - 1;
+
+                // Find the correct dataset index for "Points"
+                const pointsDatasetIndex = data.datasets.findIndex((dataset) =>
+                  dataset.label.startsWith("Points")
+                );
+
+                if (
+                  isPredictedPoint &&
+                  context.datasetIndex === pointsDatasetIndex
+                ) {
+                  // Access playerStats from the outer scope of renderChart
+                  return `Điểm dự đoán: ${context.raw.toFixed(1)} (PP: ${
+                    playerStats.predictionMethod
+                  })`;
+                }
+
                 const game =
                   playerStats.pointsPerLast10Games[context.dataIndex];
                 if (!game) return "";
 
                 let labelPrefix = "";
-                // Determine the label prefix based on the dataset index
                 switch (context.datasetIndex) {
-                  case 0: // Index of the 'Minutes' dataset
+                  case data.datasets.findIndex((dataset) =>
+                    dataset.label.startsWith("Minutes")
+                  ):
                     labelPrefix = "Minutes:";
                     break;
-                  case 1: // Index of the 'Points' dataset
+                  case pointsDatasetIndex:
                     labelPrefix = "Points:";
                     break;
-                  case 2: // Index of the 'Rebounds' dataset
+                  case data.datasets.findIndex((dataset) =>
+                    dataset.label.startsWith("Rebounds")
+                  ):
                     labelPrefix = "Rebounds:";
                     break;
-                  case 3: // Index of the 'Assists' dataset
+                  case data.datasets.findIndex((dataset) =>
+                    dataset.label.startsWith("Assists")
+                  ):
                     labelPrefix = "Assists:";
                     break;
+                  case data.datasets.findIndex((dataset) =>
+                    dataset.label.startsWith("Efficiency")
+                  ):
+                    labelPrefix = "Efficiency:";
+                    break;
                   default:
-                    labelPrefix = "Value:"; // Fallback
+                    labelPrefix = "Value:";
                 }
-
-                // Construct the tooltip lines with the correct label
                 return [
                   `${labelPrefix} ${context.raw}`,
                   `Win/Loss: ${game.winOrLoss}`,
@@ -351,6 +436,9 @@ const Dashboard = () => {
           x: {
             ticks: {
               callback: function (val, index) {
+                if (hasPrediction && index === chartLabels.length - 1) {
+                  return chartLabels[index]; // "Trận tới (DĐ)"
+                }
                 const game = playerStats.pointsPerLast10Games[index];
                 if (!game) return "";
                 return `${new Date(
@@ -362,6 +450,9 @@ const Dashboard = () => {
                 }`;
               },
               color: function (context) {
+                if (hasPrediction && context.index === chartLabels.length - 1) {
+                  return "orange";
+                }
                 const game = playerStats.pointsPerLast10Games[context.index];
                 if (!game) return "black";
                 return game.winOrLoss === "Won" ? "green" : "red";
@@ -734,6 +825,9 @@ const Dashboard = () => {
           </span>
           <span className="ml-2">
             <span style={{ color: "orange" }}>●</span> Assists
+          </span>
+          <span className="ml-2">
+            <span style={{ color: "purple" }}>●</span> Efficiency
           </span>
           <span className="ml-2">
             {" "}
