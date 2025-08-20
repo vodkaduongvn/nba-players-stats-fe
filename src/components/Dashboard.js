@@ -411,12 +411,23 @@ const Dashboard = () => {
                   default:
                     labelPrefix = "Value:";
                 }
-                return [
+                const tooltipLines = [
                   `${labelPrefix} ${context.raw}`,
                   `Win/Loss: ${game.winOrLoss}`,
                   `Team Score: ${game.teamScore}`,
                   `Opponent: ${game.oppTeamName}`,
                 ];
+
+                // Add team prediction info if available
+                if (playerStats.teamWinPrediction && playerStats.teamWinProbability !== null) {
+                  tooltipLines.push(
+                    `---`,
+                    `Team Next Game: ${playerStats.teamWinPrediction} (${(playerStats.teamWinProbability * 100).toFixed(0)}%)`,
+                    `Prediction Method: ${playerStats.teamPredictionMethod}`
+                  );
+                }
+
+                return tooltipLines;
               },
             },
           },
@@ -773,9 +784,45 @@ const Dashboard = () => {
             className="bg-gray-100 p-4 rounded-xl shadow-md w-full" // Added w-full
             // style={{ width: "520px" }} // Removed fixed width style
           >
-            <h2 className="text-xl font-bold mb-4">
+            <h2 className="text-xl font-bold mb-2">
               {leftTeamStats?.[0]?.teamName || ""}
             </h2>
+            {/* Team Win/Loss Prediction */}
+            {leftTeamStats?.[0]?.teamWinProbability !== null && leftTeamStats?.[0]?.teamWinProbability !== undefined && (
+              <div className="mb-4 p-3 bg-white rounded-lg border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-gray-700">Next Game Prediction:</span>
+                  <span className={`px-2 py-1 rounded text-sm font-bold ${
+                    leftTeamStats[0].teamWinPrediction === 'WIN' 
+                      ? 'bg-green-100 text-green-800' 
+                      : leftTeamStats[0].teamWinPrediction === 'LOSS'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {leftTeamStats[0].teamWinPrediction}
+                  </span>
+                </div>
+                <div className="flex items-center mb-1">
+                  <span className="text-sm text-gray-600 mr-2">Win Probability:</span>
+                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                    <div 
+                      className={`h-2 rounded-full ${
+                        leftTeamStats[0].teamWinProbability >= 0.6 ? 'bg-green-500' 
+                        : leftTeamStats[0].teamWinProbability <= 0.4 ? 'bg-red-500' 
+                        : 'bg-yellow-500'
+                      }`}
+                      style={{ width: `${(leftTeamStats[0].teamWinProbability * 100).toFixed(0)}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">
+                    {(leftTeamStats[0].teamWinProbability * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Method: {leftTeamStats[0].teamPredictionMethod}
+                </p>
+              </div>
+            )}
             {leftTeamStats ? (
               <div>
                 {renderTeamChart(leftTeamStatsLast10Games)}
@@ -792,9 +839,45 @@ const Dashboard = () => {
             className="bg-gray-100 p-4 rounded-xl shadow-md w-full" // Added w-full
             // style={{ width: "520px" }} // Removed fixed width style
           >
-            <h2 className="text-xl font-bold mb-4">
+            <h2 className="text-xl font-bold mb-2">
               {rightTeamStats?.[0]?.teamName || ""}
             </h2>
+            {/* Team Win/Loss Prediction */}
+            {rightTeamStats?.[0]?.teamWinProbability !== null && rightTeamStats?.[0]?.teamWinProbability !== undefined && (
+              <div className="mb-4 p-3 bg-white rounded-lg border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-gray-700">Next Game Prediction:</span>
+                  <span className={`px-2 py-1 rounded text-sm font-bold ${
+                    rightTeamStats[0].teamWinPrediction === 'WIN' 
+                      ? 'bg-green-100 text-green-800' 
+                      : rightTeamStats[0].teamWinPrediction === 'LOSS'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {rightTeamStats[0].teamWinPrediction}
+                  </span>
+                </div>
+                <div className="flex items-center mb-1">
+                  <span className="text-sm text-gray-600 mr-2">Win Probability:</span>
+                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                    <div 
+                      className={`h-2 rounded-full ${
+                        rightTeamStats[0].teamWinProbability >= 0.6 ? 'bg-green-500' 
+                        : rightTeamStats[0].teamWinProbability <= 0.4 ? 'bg-red-500' 
+                        : 'bg-yellow-500'
+                      }`}
+                      style={{ width: `${(rightTeamStats[0].teamWinProbability * 100).toFixed(0)}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">
+                    {(rightTeamStats[0].teamWinProbability * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Method: {rightTeamStats[0].teamPredictionMethod}
+                </p>
+              </div>
+            )}
             {rightTeamStats ? (
               <div>
                 {renderTeamChart(rightTeamStatsLast10Games)}
@@ -833,6 +916,21 @@ const Dashboard = () => {
             {" "}
             | (Avg = Average of last 10 visible games)
           </span>
+        </div>
+
+        {/* Team Prediction Legend */}
+        <div className="mb-4 text-xs">
+          <span className="font-semibold">Team Win Prediction:</span>
+          <span className="ml-2">
+            <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span> WIN (≥60%)
+          </span>
+          <span className="ml-2">
+            <span className="inline-block w-2 h-2 bg-red-500 rounded-full"></span> LOSS (≤40%)
+          </span>
+          <span className="ml-2">
+            <span className="inline-block w-2 h-2 bg-yellow-500 rounded-full"></span> UNCERTAIN (40-60%)
+          </span>
+          <span className="ml-2">| Based on recent performance, trends & key players</span>
         </div>
 
         {/* Existing links, Disclaimer, and Added Contact Info */}
